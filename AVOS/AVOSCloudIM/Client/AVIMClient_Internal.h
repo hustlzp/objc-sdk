@@ -6,11 +6,14 @@
 //  Copyright (c) 2014 LeanCloud Inc. All rights reserved.
 //
 
+#import "AVIMCommon_Internal.h"
 #import "AVIMClient.h"
 #import "AVIMWebSocketWrapper.h"
 
 @class LCIMConversationCache;
 @class AVIMClientInternalConversationManager;
+@class AVIMClientPushManager;
+@class AVIMSignature;
 
 #if DEBUG
 void assertContextOfQueue(dispatch_queue_t queue, BOOL isRunIn);
@@ -21,21 +24,17 @@ void assertContextOfQueue(dispatch_queue_t queue, BOOL isRunIn);
 #define AssertNotRunInQueue(queue)
 #endif
 
-FOUNDATION_EXPORT NSUInteger const clientIdLengthLimit;
-FOUNDATION_EXPORT NSInteger const errorCodeSessionTokenExpired;
-FOUNDATION_EXPORT NSString * const kTemporaryConversationIdPrefix;
-
 @interface AVIMClient () <AVIMWebSocketWrapperDelegate>
 
-#if DEBUG
-@property (nonatomic, copy) void (^ assertInternalQuietCallback)(NSError *error);
-#endif
 @property (nonatomic, strong, readonly) dispatch_queue_t internalSerialQueue;
+@property (nonatomic, strong, readonly) dispatch_queue_t signatureQueue;
 @property (nonatomic, strong, readonly) dispatch_queue_t userInteractQueue;
+@property (nonatomic, strong, readonly) AVIMWebSocketWrapper *socketWrapper;
 @property (nonatomic, strong, readonly) AVIMClientInternalConversationManager *conversationManager;
+@property (nonatomic, strong, readonly) AVIMClientPushManager *pushManager;
 @property (nonatomic, strong, readonly) LCIMConversationCache *conversationCache;
 
-+ (NSMutableDictionary *)_userOptions;
++ (NSMutableDictionary *)sessionProtocolOptions;
 
 - (instancetype)initWithClientId:(NSString *)clientId
                              tag:(NSString *)tag
@@ -49,8 +48,6 @@ FOUNDATION_EXPORT NSString * const kTemporaryConversationIdPrefix;
 
 - (void)sendCommandWrapper:(LCIMProtobufCommandWrapper *)commandWrapper;
 
-- (void)_sendCommandWrapper:(LCIMProtobufCommandWrapper *)commandWrapper;
-
 - (void)getSignatureWithConversationId:(NSString *)conversationId
                                 action:(AVIMSignatureAction)action
                      actionOnClientIds:(NSArray<NSString *> *)actionOnClientIds
@@ -60,7 +57,5 @@ FOUNDATION_EXPORT NSString * const kTemporaryConversationIdPrefix;
                                  callback:(void (^)(NSString *sessionToken, NSError *error))callback;
 
 - (void)conversation:(AVIMConversation *)conversation didUpdateForKeys:(NSArray<AVIMConversationUpdatedKey> *)keys;
-
-- (void)sendCommand:(AVIMGenericCommand *)command;
 
 @end
