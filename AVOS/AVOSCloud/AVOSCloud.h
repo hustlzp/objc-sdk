@@ -47,6 +47,7 @@
 // CloudCode
 #import "AVCloud.h"
 #import "AVCloudQueryResult.h"
+#import "AVCloud+Cache.h"
 
 // Search
 #import "AVSearchQuery.h"
