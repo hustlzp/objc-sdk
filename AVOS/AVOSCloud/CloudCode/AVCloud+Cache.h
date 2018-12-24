@@ -11,8 +11,8 @@
 
 @interface AVCloud (Cache)
 
-+ (void)rpcFunctionInBackground:(nonnull NSString *)function withParameters:(nullable id)parameters cachePolicy:(AVCachePolicy)cachePolicy maxCacheAge:(NSTimeInterval)maxCacheAge block:(AVIdResultBlock)block;
++ (void)rpcFunctionInBackground:(nonnull NSString *)function withParameters:(nullable id)parameters cachePolicy:(AVCachePolicy)cachePolicy maxCacheAge:(NSTimeInterval)maxCacheAge block:(AVIdResultWithCacheFlagBlock _Nonnull )block;
 
-+ (void)rpcFunctionInBackground:(nonnull NSString *)function cachePolicy:(AVCachePolicy)cachePolicy maxCacheAge:(NSTimeInterval)maxCacheAge block:(AVIdResultBlock)block;
++ (void)rpcFunctionInBackground:(nonnull NSString *)function cachePolicy:(AVCachePolicy)cachePolicy maxCacheAge:(NSTimeInterval)maxCacheAge block:(AVIdResultWithCacheFlagBlock _Nonnull )block;
 
 @end

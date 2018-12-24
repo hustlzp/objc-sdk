@@ -479,6 +479,19 @@ if (block) { \
     safeBlock(object);
 }
 
++ (void)callIdResultWithCacheFlagBlock:(AVIdResultWithCacheFlagBlock)block
+                   object:(id)object
+                fromCache:(BOOL)fromCache
+                    error:(NSError *)error {
+    if ([NSThread isMainThread]) {
+        block(object, fromCache, error);
+    } else {
+        dispatch_async(dispatch_get_main_queue(), ^{
+            block(object, fromCache, error);
+        });
+    }
+}
+
 + (void)callImageResultBlock:(AVImageResultBlock)block
                        image:(UIImage *)image
                        error:(NSError *)error

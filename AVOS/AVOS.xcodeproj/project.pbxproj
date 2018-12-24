@@ -1092,6 +1092,12 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		053F2A25218219D800210FB7 /* zh-Hans */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = "zh-Hans"; path = "zh-Hans.lproj/Main.strings"; sourceTree = "<group>"; };
+		053F2A26218219D900210FB7 /* zh-Hans */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = "zh-Hans"; path = "zh-Hans.lproj/LaunchScreen.strings"; sourceTree = "<group>"; };
+		053F2A29218219DF00210FB7 /* zh-Hant */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = "zh-Hant"; path = "zh-Hant.lproj/Main.strings"; sourceTree = "<group>"; };
+		053F2A2A218219DF00210FB7 /* zh-Hant */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = "zh-Hant"; path = "zh-Hant.lproj/LaunchScreen.strings"; sourceTree = "<group>"; };
+		053F2A3121821A1100210FB7 /* zh-Hant-TW */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = "zh-Hant-TW"; path = "zh-Hant-TW.lproj/Main.strings"; sourceTree = "<group>"; };
+		053F2A3221821A1100210FB7 /* zh-Hant-TW */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = "zh-Hant-TW"; path = "zh-Hant-TW.lproj/LaunchScreen.strings"; sourceTree = "<group>"; };
 		05BCB8DF210F10D40084D0D2 /* AVCloud+Cache.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "AVCloud+Cache.h"; sourceTree = "<group>"; };
 		05BCB8E0210F10D40084D0D2 /* AVCloud+Cache.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "AVCloud+Cache.m"; sourceTree = "<group>"; };
 		701881F31BC6777200432D43 /* AVFileQuery.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = AVFileQuery.m; sourceTree = "<group>"; };
@@ -3357,7 +3363,7 @@
 			attributes = {
 				CLASSPREFIX = AV;
 				LastSwiftUpdateCheck = 0920;
-				LastUpgradeCheck = 0930;
+				LastUpgradeCheck = 1010;
 				ORGANIZATIONNAME = "LeanCloud Inc.";
 				TargetAttributes = {
 					704F3B6D1BE0D0180033245C = {
@@ -4075,6 +4081,9 @@
 			isa = PBXVariantGroup;
 			children = (
 				D3078A802010739700A4C5FD /* Base */,
+				053F2A25218219D800210FB7 /* zh-Hans */,
+				053F2A29218219DF00210FB7 /* zh-Hant */,
+				053F2A3121821A1100210FB7 /* zh-Hant-TW */,
 			);
 			name = Main.storyboard;
 			sourceTree = "<group>";
@@ -4083,6 +4092,9 @@
 			isa = PBXVariantGroup;
 			children = (
 				D3078A852010739700A4C5FD /* Base */,
+				053F2A26218219D900210FB7 /* zh-Hans */,
+				053F2A2A218219DF00210FB7 /* zh-Hant */,
+				053F2A3221821A1100210FB7 /* zh-Hant-TW */,
 			);
 			name = LaunchScreen.storyboard;
 			sourceTree = "<group>";
@@ -4987,6 +4999,7 @@
 		8C84197F1A5A78E100C5C6C4 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				CLANG_ANALYZER_LOCALIZABILITY_NONLOCALIZED = YES;
 				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
 				CLANG_WARN_BOOL_CONVERSION = YES;
 				CLANG_WARN_COMMA = YES;
@@ -5035,6 +5048,7 @@
 		8C8419801A5A78E100C5C6C4 /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				CLANG_ANALYZER_LOCALIZABILITY_NONLOCALIZED = YES;
 				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
 				CLANG_WARN_BOOL_CONVERSION = YES;
 				CLANG_WARN_COMMA = YES;

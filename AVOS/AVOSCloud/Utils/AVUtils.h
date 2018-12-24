@@ -101,6 +101,11 @@ SecCertificateRef LCGetCertificateFromBase64String(NSString *base64);
                    object:(id)object
                     error:(NSError *)error;
 
++ (void)callIdResultWithCacheFlagBlock:(AVIdResultWithCacheFlagBlock)block
+                   object:(id)object
+                fromCache:(BOOL)fromCache
+                    error:(NSError *)error;
+
 + (void)callProgressBlock:(AVProgressBlock)block
                   percent:(NSInteger)percentDone;
 

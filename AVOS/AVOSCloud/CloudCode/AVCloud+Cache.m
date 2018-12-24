@@ -23,7 +23,7 @@
 
 @implementation AVCloud (AVCloud_Cache)
 
-+ (void)rpcFunctionInBackground:(NSString *)function withParameters:(nullable id)parameters cachePolicy:(AVCachePolicy)cachePolicy maxCacheAge:(NSTimeInterval)maxCacheAge block:(AVIdResultBlock)block
++ (void)rpcFunctionInBackground:(NSString *)function withParameters:(nullable id)parameters cachePolicy:(AVCachePolicy)cachePolicy maxCacheAge:(NSTimeInterval)maxCacheAge block:(AVIdResultWithCacheFlagBlock)block
 {   
     switch (cachePolicy) {
         case kAVCachePolicyIgnoreCache: {
@@ -39,30 +39,30 @@
             break;
         }
         case kAVCachePolicyCacheElseNetwork: {
-            [AVCloud rpcFunctionFromCache:function withParameters:parameters maxCacheAge:maxCacheAge block:^(id _Nullable object, NSError * _Nullable error) {
+            [AVCloud rpcFunctionFromCache:function withParameters:parameters maxCacheAge:maxCacheAge block:^(id _Nullable object, BOOL fromCache, NSError * _Nullable error) {
                 if (error != nil) {
                     [AVCloud rpcFunctionFromNetwork:function withParameters:parameters cachePolicy:cachePolicy block:block];
                     return;
                 }
                 
-                block(object, error);
+                block(object, true, error);
             }];
             break;
         }
         case kAVCachePolicyNetworkElseCache: {
-            [AVCloud rpcFunctionFromNetwork:function withParameters:parameters cachePolicy:cachePolicy block:^(id _Nullable object, NSError * _Nullable error) {
+            [AVCloud rpcFunctionFromNetwork:function withParameters:parameters cachePolicy:cachePolicy block:^(id _Nullable object, BOOL fromCache, NSError * _Nullable error) {
                 if (error != nil) {
                     [AVCloud rpcFunctionFromCache:function withParameters:parameters maxCacheAge:maxCacheAge block:block];
                     return;
                 }
                 
-                block(object, error);
+                block(object, false, error);
             }];
             break;
         }
         case kAVCachePolicyCacheThenNetwork: {
-            [AVCloud rpcFunctionFromCache:function withParameters:parameters maxCacheAge:maxCacheAge block:^(id _Nullable object, NSError * _Nullable error) {
-                block(object, error);
+            [AVCloud rpcFunctionFromCache:function withParameters:parameters maxCacheAge:maxCacheAge block:^(id _Nullable object, BOOL fromCache, NSError * _Nullable error) {
+                block(object, true, error);
                 
                 [AVCloud rpcFunctionFromNetwork:function withParameters:parameters cachePolicy:cachePolicy block:block];
             }];
@@ -71,11 +71,11 @@
     }
 }
 
-+ (void)rpcFunctionInBackground:(NSString *)function cachePolicy:(AVCachePolicy)cachePolicy maxCacheAge:(NSTimeInterval)maxCacheAge block:(AVIdResultBlock)block {
++ (void)rpcFunctionInBackground:(NSString *)function cachePolicy:(AVCachePolicy)cachePolicy maxCacheAge:(NSTimeInterval)maxCacheAge block:(AVIdResultWithCacheFlagBlock)block {
     [AVCloud rpcFunctionInBackground:function withParameters:nil cachePolicy:cachePolicy maxCacheAge:maxCacheAge block:block];
 }
 
-+ (void)rpcFunctionFromNetwork:(NSString *)function withParameters:(nullable id)parameters cachePolicy:(AVCachePolicy)cachePolicy block:(AVIdResultBlock)block
++ (void)rpcFunctionFromNetwork:(NSString *)function withParameters:(nullable id)parameters cachePolicy:(AVCachePolicy)cachePolicy block:(AVIdResultWithCacheFlagBlock)block
 {
     NSDictionary *serializedParameters = nil;
     
@@ -91,18 +91,18 @@
      performRequest:request
      success:^(NSHTTPURLResponse *response, id responseObject) {
          id result = [self processedFunctionResultFromObject:responseObject[@"result"]];
-         [AVUtils callIdResultBlock:block object:result error:nil];
+         [AVUtils callIdResultWithCacheFlagBlock:block object:result fromCache:false error:nil];
          if (cachePolicy != kAVCachePolicyIgnoreCache) {
              [[AVCacheManager sharedInstance] saveJSON:responseObject forKey:key];
          }
      }
      failure:^(NSHTTPURLResponse *response, id responseObject, NSError *inError) {
          
-         [AVUtils callIdResultBlock:block object:nil error:inError];
+         [AVUtils callIdResultWithCacheFlagBlock:block object:nil fromCache:false error:inError];
      }];
 }
 
-+ (void)rpcFunctionFromCache:(NSString *)function withParameters:(nullable id)parameters maxCacheAge:(NSTimeInterval)maxCacheAge block:(AVIdResultBlock)block
++ (void)rpcFunctionFromCache:(NSString *)function withParameters:(nullable id)parameters maxCacheAge:(NSTimeInterval)maxCacheAge block:(AVIdResultWithCacheFlagBlock)block
 {
     NSDictionary *serializedParameters = nil;
     
@@ -116,13 +116,13 @@
     
     [[AVCacheManager sharedInstance] getWithKey:key maxCacheAge:maxCacheAge block:^(id  _Nullable object, NSError * _Nullable error) {
         if (error != nil || object == nil) {
-            block(nil, error);
+            block(nil, true, error);
             return;
         }
         
         id result = [self processedFunctionResultFromObject:object[@"result"]];
         
-        block(result, nil);
+        block(result, true, nil);
     }];
 }
 

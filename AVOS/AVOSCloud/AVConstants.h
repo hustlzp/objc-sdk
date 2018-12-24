@@ -181,6 +181,7 @@ typedef void (^AVImageResultBlock)(UIImage * _Nullable image, NSError * _Nullabl
 typedef void (^AVDataStreamResultBlock)(NSInputStream * _Nullable stream, NSError * _Nullable error);
 typedef void (^AVStringResultBlock)(NSString * _Nullable string, NSError * _Nullable error);
 typedef void (^AVIdResultBlock)(id _Nullable object, NSError * _Nullable error);
+typedef void (^AVIdResultWithCacheFlagBlock)(id _Nullable object, BOOL fromCache, NSError * _Nullable error);
 typedef void (^AVProgressBlock)(NSInteger percentDone);
 typedef void (^AVFileResultBlock)(AVFile * _Nullable file, NSError * _Nullable error);
 typedef void (^AVDictionaryResultBlock)(NSDictionary * _Nullable dict, NSError * _Nullable error);
