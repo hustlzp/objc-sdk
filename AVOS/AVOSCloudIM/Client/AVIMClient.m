@@ -218,6 +218,7 @@ static BOOL clientHasInstantiated = false;
 
 - (void)dealloc
 {
+    [self->_socketWrapper setActivatingReconnectionEnabled:false];
     [self->_socketWrapper close];
 }
 
@@ -414,6 +415,7 @@ static BOOL clientHasInstantiated = false;
                     [client setSessionToken:sessionToken ttl:(sessionCommand.hasStTtl ? sessionCommand.stTtl : 0)];
                     [client->_pushManager uploadingDeviceToken];
                     [client->_pushManager addingClientIdToChannels];
+                    [client->_socketWrapper setActivatingReconnectionEnabled:true];
                     
                     [client invokeInUserInteractQueue:^{
                         callback(true, nil);
@@ -475,16 +477,19 @@ static BOOL clientHasInstantiated = false;
     void(^ handleInCommandBlock)(LCIMProtobufCommandWrapper *) = ^(LCIMProtobufCommandWrapper *commandWrapper) {
         AVIMGenericCommand *inCommand = commandWrapper.inCommand;
         AVIMSessionCommand *sessionCommand = (inCommand.hasSessionMessage ? inCommand.sessionMessage : nil);
-        NSString *sessionToken = (sessionCommand.hasSt ? sessionCommand.st : nil);
-        if (!sessionToken) {
+        if (!(sessionCommand && inCommand.cmd == AVIMCommandType_Session && inCommand.op == AVIMOpType_Opened)) {
             callback(false, ({
                 AVIMErrorCode code = AVIMErrorCodeInvalidCommand;
                 LCError(code, AVIMErrorMessage(code), nil);
             }));
             return;
         }
+        NSString *sessionToken = (sessionCommand.hasSt ? sessionCommand.st : nil);
+        int32_t ttl = (sessionCommand.hasStTtl ? sessionCommand.stTtl : 0);
+        if (sessionToken && ttl) {
+            [self setSessionToken:sessionToken ttl:ttl];
+        }
         self->_status = AVIMClientStatusOpened;
-        [self setSessionToken:sessionToken ttl:(sessionCommand.hasStTtl ? sessionCommand.stTtl : 0)];
         [self->_pushManager uploadingDeviceToken];
         [self->_pushManager addingClientIdToChannels];
         callback(true, nil);
@@ -576,6 +581,7 @@ static BOOL clientHasInstantiated = false;
             client->_status = AVIMClientStatusClosed;
             [client clearSessionTokenAndTTL];
             [client->_pushManager removingClientIdFromChannels];
+            [client->_socketWrapper setActivatingReconnectionEnabled:false];
             [client->_socketWrapper close];
             
             [client invokeInUserInteractQueue:^{
@@ -793,6 +799,8 @@ static BOOL clientHasInstantiated = false;
             client->_status = AVIMClientStatusClosed;
             [client clearSessionTokenAndTTL];
             [client->_pushManager removingClientIdFromChannels];
+            [client->_socketWrapper setActivatingReconnectionEnabled:false];
+            [client->_socketWrapper close];
             id <AVIMClientDelegate> delegate = client->_delegate;
             SEL sel = @selector(client:didOfflineWithError:);
             if (delegate && [delegate respondsToSelector:sel]) {
@@ -935,7 +943,10 @@ static BOOL clientHasInstantiated = false;
             [client invokeInUserInteractQueue:^{
                 if (error) {
                     AVLoggerError(AVLoggerDomainIM, @"session resuming failed with error: %@", error);
-                    [delegate imClientPaused:client];
+                    if ([error.domain isEqualToString:kLeanCloudErrorDomain] &&
+                        error.code == AVIMErrorCodeCommandTimeout) {
+                        [client webSocketWrapperDidReopen:socketWrapper];
+                    }
                 } else {
                     [delegate imClientResumed:client];
                 }
@@ -947,7 +958,9 @@ static BOOL clientHasInstantiated = false;
 - (void)webSocketWrapperInReconnecting:(AVIMWebSocketWrapper *)socketWrapper
 {
     [self addOperationToInternalSerialQueue:^(AVIMClient *client) {
-        if (!client->_sessionToken) { return; }
+        if (!client->_sessionToken || client->_status == AVIMClientStatusResuming) {
+            return;
+        }
         client->_status = AVIMClientStatusResuming;
         [client invokeInUserInteractQueue:^{
             [client->_delegate imClientResuming:client];
@@ -958,7 +971,9 @@ static BOOL clientHasInstantiated = false;
 - (void)webSocketWrapperDidPause:(AVIMWebSocketWrapper *)socketWrapper
 {
     [self addOperationToInternalSerialQueue:^(AVIMClient *client) {
-        if (!client->_sessionToken) { return; }
+        if (!client->_sessionToken || client->_status == AVIMClientStatusPaused) {
+            return;
+        }
         client->_status = AVIMClientStatusPaused;
         [client invokeInUserInteractQueue:^{
             [client->_delegate imClientPaused:client];
@@ -972,6 +987,8 @@ static BOOL clientHasInstantiated = false;
         if (!client->_sessionToken) { return; }
         client->_status = AVIMClientStatusClosed;
         [client clearSessionTokenAndTTL];
+        [client->_socketWrapper setActivatingReconnectionEnabled:false];
+        [client->_socketWrapper close];
         id<AVIMClientDelegate> delegate = client->_delegate;
         [client invokeInUserInteractQueue:^{
             [delegate imClientClosed:client error:error];
@@ -1003,6 +1020,8 @@ static BOOL clientHasInstantiated = false;
     
     if (code == AVIMErrorCodeSessionConflict) {
         [self->_pushManager removingClientIdFromChannels];
+        [self->_socketWrapper setActivatingReconnectionEnabled:false];
+        [self->_socketWrapper close];
         id <AVIMClientDelegate> delegate = self->_delegate;
         SEL sel = @selector(client:didOfflineWithError:);
         if (delegate && [delegate respondsToSelector:sel]) {
@@ -1919,7 +1938,89 @@ static BOOL clientHasInstantiated = false;
 - (AVIMConversation *)conversationWithKeyedConversation:(AVIMKeyedConversation *)keyedConversation
 {
     AssertNotRunInQueue(self->_internalSerialQueue);
-    NSString *conversationId = keyedConversation.rawDataDic[AVIMConversationKeyObjectId];
+    NSString *conversationId = nil;
+    NSMutableDictionary *rawDataDic = [keyedConversation.rawDataDic mutableCopy];
+    if (rawDataDic) {
+        conversationId = [NSString lc__decodingDictionary:rawDataDic key:AVIMConversationKeyObjectId];
+    } else {
+        rawDataDic = [NSMutableDictionary dictionary];
+        if (keyedConversation.conversationId) {
+            conversationId = keyedConversation.conversationId;
+            rawDataDic[AVIMConversationKeyObjectId] = conversationId;
+        }
+        if (keyedConversation.creator) {
+            rawDataDic[AVIMConversationKeyCreator] = keyedConversation.creator;
+        }
+        if (keyedConversation.createAt) {
+            rawDataDic[AVIMConversationKeyCreatedAt] = keyedConversation.createAt;
+        }
+        if (keyedConversation.updateAt) {
+            rawDataDic[AVIMConversationKeyUpdatedAt] = keyedConversation.updateAt;
+        }
+        if (keyedConversation.name) {
+            rawDataDic[AVIMConversationKeyName] = keyedConversation.name;
+        }
+        if (keyedConversation.members) {
+            rawDataDic[AVIMConversationKeyMembers] = keyedConversation.members;
+        }
+        if (keyedConversation.attributes) {
+            rawDataDic[AVIMConversationKeyAttributes] = keyedConversation.attributes;
+        }
+        if (keyedConversation.uniqueId) {
+            rawDataDic[AVIMConversationKeyUniqueId] = keyedConversation.uniqueId;
+        }
+        if (keyedConversation.unique) {
+            rawDataDic[AVIMConversationKeyUnique] = @(keyedConversation.unique);
+        }
+        if (keyedConversation.transient) {
+            rawDataDic[AVIMConversationKeyTransient] = @(keyedConversation.transient);
+        }
+        if (keyedConversation.system) {
+            rawDataDic[AVIMConversationKeySystem] = @(keyedConversation.system);
+        }
+        if (keyedConversation.temporary) {
+            rawDataDic[AVIMConversationKeyTemporary] = @(keyedConversation.temporary);
+        }
+        if (keyedConversation.temporaryTTL) {
+            rawDataDic[AVIMConversationKeyTemporaryTTL] = @(keyedConversation.temporaryTTL);
+        }
+        if (keyedConversation.muted) {
+            rawDataDic[AVIMConversationKeyMutedMembers] = @(keyedConversation.muted);
+        }
+    }
+    if (keyedConversation.lastMessage) {
+        AVIMMessage *message = keyedConversation.lastMessage;
+        [rawDataDic removeObjectsForKeys:({
+            @[AVIMConversationKeyLastMessageContent,
+              AVIMConversationKeyLastMessageId,
+              AVIMConversationKeyLastMessageFrom,
+              AVIMConversationKeyLastMessageTimestamp,
+              AVIMConversationKeyLastMessagePatchTimestamp,
+              AVIMConversationKeyLastMessageMentionAll,
+              AVIMConversationKeyLastMessageMentionPids];
+        })];
+        if (message.content) {
+            rawDataDic[AVIMConversationKeyLastMessageContent] = message.content;
+        }
+        if (message.messageId) {
+            rawDataDic[AVIMConversationKeyLastMessageId] = message.messageId;
+        }
+        if (message.clientId) {
+            rawDataDic[AVIMConversationKeyLastMessageFrom] = message.clientId;
+        }
+        if (message.sendTimestamp) {
+            rawDataDic[AVIMConversationKeyLastMessageTimestamp] = @(message.sendTimestamp);
+        }
+        if (message.updatedAt) {
+            rawDataDic[AVIMConversationKeyLastMessagePatchTimestamp] = @(message.updatedAt.timeIntervalSince1970 * 1000.0);
+        }
+        if (message.mentionAll) {
+            rawDataDic[AVIMConversationKeyLastMessageMentionAll] = @(message.mentionAll);
+        }
+        if (message.mentionList) {
+            rawDataDic[AVIMConversationKeyLastMessageMentionPids] = message.mentionList;
+        }
+    }
     if (!conversationId) {
         return nil;
     }
@@ -1927,7 +2028,7 @@ static BOOL clientHasInstantiated = false;
     dispatch_sync(self->_internalSerialQueue, ^{
         conv = [self->_conversationManager conversationForId:conversationId];
         if (!conv) {
-            conv = [AVIMConversation conversationWithRawJSONData:keyedConversation.rawDataDic.mutableCopy client:self];
+            conv = [AVIMConversation conversationWithRawJSONData:rawDataDic client:self];
             if (conv) {
                 [self->_conversationManager insertConversation:conv];
             }
