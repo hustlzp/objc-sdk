@@ -19,7 +19,7 @@ Pod::Spec.new do |s|
   s.requires_arc = true
 
   s.source = {
-    :git => "https://github.com/leancloud/objc-sdk.git",
+    :git => "https://github.com/hustlzp/objc-sdk.git",
     :tag => "#{s.version}"
   }
 

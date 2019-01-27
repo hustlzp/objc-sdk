@@ -56,7 +56,7 @@
 /*消息 id*/
 @property (nonatomic, strong) NSString *messageId;
 /*消息发送/接收方 id*/
-@property (nonatomic, strong) NSString *clientId;
+//@property (nonatomic, strong) NSString *clientId;
 /*消息所属对话的 id*/
 @property (nonatomic, strong) NSString *conversationId;
 

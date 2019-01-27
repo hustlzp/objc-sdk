@@ -57,7 +57,7 @@ NS_ASSUME_NONNULL_BEGIN
 /*!
  * 消息发送/接收方 id
  */
-@property (nonatomic, strong, readonly, nullable) NSString *clientId;
+@property (nonatomic, strong, readwrite, nullable) NSString *clientId;
 
 /*!
  * A flag indicates whether this message mentions all members in conversation or not.
