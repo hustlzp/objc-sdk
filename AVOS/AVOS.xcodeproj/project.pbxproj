@@ -1102,7 +1102,7 @@
 		053F2A3221821A1100210FB7 /* zh-Hant-TW */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = "zh-Hant-TW"; path = "zh-Hant-TW.lproj/LaunchScreen.strings"; sourceTree = "<group>"; };
 		05BCB8DF210F10D40084D0D2 /* AVCloud+Cache.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "AVCloud+Cache.h"; sourceTree = "<group>"; };
 		05BCB8E0210F10D40084D0D2 /* AVCloud+Cache.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "AVCloud+Cache.m"; sourceTree = "<group>"; };
-		05FF7A0D21FF5CA10000C7A2 /* sAVOSCloud.podspec */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = sAVOSCloud.podspec; path = ../sAVOSCloud.podspec; sourceTree = "<group>"; };
+		05FF7A0D21FF5CA10000C7A2 /* XCZAVOSCloud.podspec */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = XCZAVOSCloud.podspec; path = ../XCZAVOSCloud.podspec; sourceTree = "<group>"; };
 		701881F31BC6777200432D43 /* AVFileQuery.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = AVFileQuery.m; sourceTree = "<group>"; };
 		701881F41BC6777200432D43 /* AVFileQuery.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AVFileQuery.h; sourceTree = "<group>"; };
 		70344DD31B71C4F600C3DAD9 /* TestRelation.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = TestRelation.json; sourceTree = "<group>"; };
@@ -2336,7 +2336,7 @@
 		D3078A592010417800A4C5FD /* Podspec */ = {
 			isa = PBXGroup;
 			children = (
-				05FF7A0D21FF5CA10000C7A2 /* sAVOSCloud.podspec */,
+				05FF7A0D21FF5CA10000C7A2 /* XCZAVOSCloud.podspec */,
 				D3078A5D201041B200A4C5FD /* AVOSCloudIM.podspec */,
 				D3078A5A201041B200A4C5FD /* AVOSCloudLiveQuery.podspec */,
 			);
