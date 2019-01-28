@@ -7,7 +7,7 @@
 //
 
 
-#import <AVOSCloud/AVOSCloud.h>
+#import "AVOSCloud.h"
 
 @interface AVOSCloud ()
 
