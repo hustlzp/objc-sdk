@@ -1,5 +1,5 @@
 Pod::Spec.new do |s|
-  s.name     = 'AVOSCloud'
+  s.name     = 'sAVOSCloud'
   s.version  = '11.4.9'
   s.homepage = 'https://leancloud.cn/'
   s.summary  = 'LeanCloud Objective-C SDK'
@@ -37,6 +37,7 @@ Pod::Spec.new do |s|
     'AVOS/AVOSCloud/AVConstants.h',
     'AVOS/AVOSCloud/AVOSCloud.h',
     'AVOS/AVOSCloud/CloudCode/AVCloud.h',
+    'AVOS/AVOSCloud/CloudCode/AVCloud+Cache.h',
     'AVOS/AVOSCloud/File/AVFile.h',
     'AVOS/AVOSCloud/Geo/AVGeoPoint.h',
     'AVOS/AVOSCloud/Object/AVObject+Subclass.h',

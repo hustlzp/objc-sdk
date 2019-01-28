@@ -1102,6 +1102,7 @@
 		053F2A3221821A1100210FB7 /* zh-Hant-TW */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = "zh-Hant-TW"; path = "zh-Hant-TW.lproj/LaunchScreen.strings"; sourceTree = "<group>"; };
 		05BCB8DF210F10D40084D0D2 /* AVCloud+Cache.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "AVCloud+Cache.h"; sourceTree = "<group>"; };
 		05BCB8E0210F10D40084D0D2 /* AVCloud+Cache.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "AVCloud+Cache.m"; sourceTree = "<group>"; };
+		05FF7A0D21FF5CA10000C7A2 /* sAVOSCloud.podspec */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = sAVOSCloud.podspec; path = ../sAVOSCloud.podspec; sourceTree = "<group>"; };
 		701881F31BC6777200432D43 /* AVFileQuery.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = AVFileQuery.m; sourceTree = "<group>"; };
 		701881F41BC6777200432D43 /* AVFileQuery.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AVFileQuery.h; sourceTree = "<group>"; };
 		70344DD31B71C4F600C3DAD9 /* TestRelation.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = TestRelation.json; sourceTree = "<group>"; };
@@ -1466,7 +1467,6 @@
 		D3054711208F301B00B547B9 /* AVIMClientTestCase.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AVIMClientTestCase.swift; sourceTree = "<group>"; };
 		D3054714208F302D00B547B9 /* AVIMConversationTestCase.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AVIMConversationTestCase.swift; sourceTree = "<group>"; };
 		D3078A5A201041B200A4C5FD /* AVOSCloudLiveQuery.podspec */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = AVOSCloudLiveQuery.podspec; path = ../AVOSCloudLiveQuery.podspec; sourceTree = "<group>"; };
-		D3078A5B201041B200A4C5FD /* AVOSCloud.podspec */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = AVOSCloud.podspec; path = ../AVOSCloud.podspec; sourceTree = "<group>"; };
 		D3078A5D201041B200A4C5FD /* AVOSCloudIM.podspec */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = AVOSCloudIM.podspec; path = ../AVOSCloudIM.podspec; sourceTree = "<group>"; };
 		D3078A792010739700A4C5FD /* RuntimeTestDemo.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = RuntimeTestDemo.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		D3078A7B2010739700A4C5FD /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
@@ -2336,7 +2336,7 @@
 		D3078A592010417800A4C5FD /* Podspec */ = {
 			isa = PBXGroup;
 			children = (
-				D3078A5B201041B200A4C5FD /* AVOSCloud.podspec */,
+				05FF7A0D21FF5CA10000C7A2 /* sAVOSCloud.podspec */,
 				D3078A5D201041B200A4C5FD /* AVOSCloudIM.podspec */,
 				D3078A5A201041B200A4C5FD /* AVOSCloudLiveQuery.podspec */,
 			);
@@ -3393,6 +3393,7 @@
 					};
 					8C8419901A5A791300C5C6C4 = {
 						CreatedOnToolsVersion = 6.1.1;
+						DevelopmentTeam = N26JLKH94G;
 						LastSwiftMigration = "";
 					};
 					8C8419C21A5A796000C5C6C4 = {
@@ -5237,6 +5238,7 @@
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
 				CODE_SIGN_IDENTITY = "iPhone Developer";
 				COPY_PHASE_STRIP = NO;
+				DEVELOPMENT_TEAM = N26JLKH94G;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
 				FRAMEWORK_SEARCH_PATHS = "$(inherited)";
 				GCC_C_LANGUAGE_STANDARD = gnu99;
@@ -5302,6 +5304,7 @@
 				CLANG_WARN_UNREACHABLE_CODE = YES;
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
 				CODE_SIGN_IDENTITY = "iPhone Distribution";
+				DEVELOPMENT_TEAM = N26JLKH94G;
 				ENABLE_NS_ASSERTIONS = NO;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
 				FRAMEWORK_SEARCH_PATHS = "$(inherited)";
