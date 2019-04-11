@@ -38,4 +38,5 @@ Also see [Quick Start][quick-start].
 git tag xx.xx.xx.xx
 git push --tags
 pod repo push xcz-specs /var/www/objc-sdk/XCZAVOSCloud.podspec --allow-warnings --use-libraries
+pod repo push xcz-specs /var/www/objc-sdk/XCZAVOSCloudIM.podspec --allow-warnings --use-libraries
 ```

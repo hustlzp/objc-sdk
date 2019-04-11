@@ -1,6 +1,6 @@
 Pod::Spec.new do |s|
-  s.name     = 'AVOSCloudIM'
-  s.version  = '11.6.1'
+  s.name     = 'XCZAVOSCloudIM'
+  s.version  = '11.6.1.100'
   s.homepage = 'https://leancloud.cn/'
   s.summary  = 'LeanCloud IM Objective-C SDK'
   s.authors  = 'LeanCloud'
@@ -21,7 +21,7 @@ Pod::Spec.new do |s|
 
   s.subspec '_ARC' do |ss|
     ss.requires_arc = true
-    ss.dependency 'AVOSCloudIM/_NOARC', "#{s.version}"
+    ss.dependency 'XCZAVOSCloudIM/_NOARC', "#{s.version}"
 
     ss.source_files =
       'AVOS/AVOSCloudIM/Protobuf/LCIMExtensionInternals.h',
@@ -240,7 +240,7 @@ Pod::Spec.new do |s|
     }
   end
 
-  s.dependency 'AVOSCloud', "#{s.version}"
+  s.dependency 'XCZAVOSCloud', "#{s.version}"
 
   s.libraries =
     'icucore'
