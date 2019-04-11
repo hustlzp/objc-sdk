@@ -31,3 +31,11 @@ Also see [Quick Start][quick-start].
 [LeanTicket]: https://leanticket.cn/t/leancloud
 [installation-wiki-page]: https://github.com/leancloud/objc-sdk/wiki/Installation
 [quick-start]: https://leancloud.cn/docs/start.html
+
+## Push to Private Repo
+
+```
+git tag xx.xx.xx.xx
+git push --tags
+pod repo push xcz-specs /var/www/objc-sdk/XCZAVOSCloud.podspec --allow-warnings --use-libraries
+```
