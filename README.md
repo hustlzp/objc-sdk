@@ -34,6 +34,12 @@ pod 'XCZAVOSCloud', '~> 11.6.1.100'
 pod 'XCZAVOSCloudIM', '~> 11.6.1.100'
 ```
 
+In Swift code:
+
+```
+import XCZAVOSCloud
+```
+
 ## Push to Private Repo
 
 ```
