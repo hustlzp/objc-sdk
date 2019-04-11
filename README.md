@@ -24,13 +24,15 @@
 
 ## Installation
 
-[Installation wiki page][installation-wiki-page] describes how to integrate SDK.
+In Podfile:
 
-Also see [Quick Start][quick-start].
+```
+source 'https://github.com/CocoaPods/Specs.git'
+source 'git@github.com:hustlzp/Specs.git'
 
-[LeanTicket]: https://leanticket.cn/t/leancloud
-[installation-wiki-page]: https://github.com/leancloud/objc-sdk/wiki/Installation
-[quick-start]: https://leancloud.cn/docs/start.html
+pod 'XCZAVOSCloud', '~> 11.6.1.100'
+pod 'XCZAVOSCloudIM', '~> 11.6.1.100'
+```
 
 ## Push to Private Repo
 
