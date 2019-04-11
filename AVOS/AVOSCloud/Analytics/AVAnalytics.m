@@ -13,7 +13,7 @@
 #import "AVUtils.h"
 
 #import "AVOSCloud_Internal.h"
-#import <CoreLocation/CoreLocation.h>
+//#import <CoreLocation/CoreLocation.h>
 
 static NSString * endPoint = @"statistics";
 
@@ -230,11 +230,6 @@ static NSString * currentSessionId;
     [[AVAnalyticsImpl sharedInstance] setLatitude:latitude longitude:longitude];
 }
 
-+ (void)setLocation:(CLLocation *)location {
-    [[AVAnalyticsImpl sharedInstance] setLatitude:location.coordinate.latitude
-                                        longitude:location.coordinate.longitude];
-}
-
 +(void)startInternally {
     if ([[AVAnalyticsImpl sharedInstance] isLocalEnabled]) {
         [AVAnalytics startInternallyWithChannel:@""];
@@ -245,5 +240,8 @@ static NSString * currentSessionId;
     }];
 }
 
++ (void)start {
+    [self startInternally];
+}
 
 @end

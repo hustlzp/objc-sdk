@@ -37,10 +37,6 @@ static BOOL enableAutomatic = NO;
 @dynamic password;
 @dynamic email;
 @dynamic mobilePhoneVerified;
-@dynamic facebookToken;
-@dynamic twitterToken;
-@dynamic sinaWeiboToken;
-@dynamic qqWeiboToken;
 @dynamic mobilePhoneNumber;
 
 + (void)load {
@@ -232,7 +228,7 @@ static BOOL enableAutomatic = NO;
 
 -(NSMutableDictionary *)initialBodyData {
     NSMutableDictionary *body = [NSMutableDictionary dictionary];
-    NSMutableDictionary *dict = [[self.requestManager jsonForCloud] firstObject];
+    NSMutableDictionary *dict = [[self._requestManager jsonForCloud] firstObject];
 
     if (dict) {
         [body addEntriesFromDictionary:dict];
@@ -375,13 +371,6 @@ static BOOL enableAutomatic = NO;
                        }];
 }
 
-+(NSDictionary *)userParameter:(NSString *)username
-                      password:(NSString *)password
-{
-    NSDictionary * parameters = @{usernameTag: username, passwordTag:password};
-    return parameters;
-}
-
 // MARK: - login with username & password
 
 + (instancetype)logInWithUsername:(NSString *)username
@@ -395,7 +384,7 @@ static BOOL enableAutomatic = NO;
                         error:(NSError **)error
 {
     __block AVUser * resultUser = nil;
-    [[self class] logInWithUsername:username password:password block:^(AVUser *user, NSError *error) {
+    [[self class] logInWithUsername:username email:nil password:password block:^(AVUser *user, NSError *error) {
         resultUser = user;
     } waitUntilDone:YES error:error];
     return resultUser;
@@ -404,7 +393,7 @@ static BOOL enableAutomatic = NO;
 + (void)logInWithUsernameInBackground:(NSString *)username
                              password:(NSString *)password
 {
-    [[self class] logInWithUsername:username password:password block:nil waitUntilDone:YES error:nil];
+    [[self class] logInWithUsername:username email:nil password:password block:nil waitUntilDone:YES error:nil];
 }
 
 + (void)logInWithUsernameInBackground:(NSString *)username
@@ -423,14 +412,21 @@ static BOOL enableAutomatic = NO;
                              password:(NSString *)password
                                 block:(AVUserResultBlock)block
 {
-    [[self class] logInWithUsername:username password:password block:^(AVUser *user, NSError * error) {
+    [[self class] logInWithUsername:username email:nil password:password block:^(AVUser *user, NSError * error) {
         [AVUtils callUserResultBlock:block user:user error:error];
     }
     waitUntilDone:NO error:nil];
     
 }
+    
++ (void)loginWithEmail:(NSString *)email password:(NSString *)password block:(AVUserResultBlock)block {
+    [[self class] logInWithUsername:nil email:email password:password block:^(AVUser * _Nullable user, NSError * _Nullable error) {
+        [AVUtils callUserResultBlock:block user:user error:error];
+    } waitUntilDone:false error:nil];
+}
 
 + (BOOL)logInWithUsername:(NSString *)username
+                    email:(NSString *)email
                  password:(NSString *)password
                     block:(AVUserResultBlock)block
             waitUntilDone:(BOOL)wait
@@ -440,7 +436,10 @@ static BOOL enableAutomatic = NO;
     BOOL __block hasCalledBack = NO;
     NSError __block *blockError = nil;
     
-    NSDictionary * parameters = [[self class] userParameter:username password:password];
+    NSMutableDictionary *parameters = [NSMutableDictionary dictionary];
+    if (username) { parameters[usernameTag] = username; }
+    if (email) { parameters[emailTag] = email; }
+    if (password) { parameters[passwordTag] = password; }
     [[AVPaasClient sharedInstance] postObject:@"login" withParameters:parameters block:^(id object, NSError *error) {
         AVUser * user = nil;
         if (error == nil)
@@ -984,7 +983,7 @@ static BOOL enableAutomatic = NO;
         
         [self setNewFlag:true];
         [AVObjectUtils copyDictionary:dic toObject:self];
-        [self.requestManager clear];
+        [self._requestManager clear];
         [AVUser changeCurrentUser:self save:YES];
         
         dispatch_async(dispatch_get_main_queue(), ^{
@@ -1252,14 +1251,14 @@ static BOOL enableAutomatic = NO;
 - (void)removeLocalData {
     __block NSString *sessionToken = nil;
     [self internalSyncLock:^{
-        sessionToken = self.localData[@"sessionToken"];
+        sessionToken = self._localData[@"sessionToken"];
     }];
 
     [super removeLocalData];
 
     if (sessionToken) {
         [self internalSyncLock:^{
-            self.localData[@"sessionToken"] = sessionToken;
+            self._localData[@"sessionToken"] = sessionToken;
         }];
     }
 }
@@ -1305,7 +1304,7 @@ static BOOL enableAutomatic = NO;
     
     [AVObjectUtils copyDictionary:dic toObject:user];
     
-    [user.requestManager clear];
+    [user._requestManager clear];
     
     [self changeCurrentUser:user save:YES];
 }
@@ -1321,10 +1320,7 @@ static BOOL enableAutomatic = NO;
 }
 
 - (BOOL)isAuthDataExistInMemory {
-    if (self.sessionToken.length > 0 ||
-        self.sinaWeiboToken.length > 0 ||
-        [self objectForKey:authDataTag]) // for sns user
-    {
+    if (self.sessionToken.length > 0 || [self objectForKey:authDataTag]) {
         return YES;
     }
     return NO;

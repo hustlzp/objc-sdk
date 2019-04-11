@@ -35,7 +35,6 @@ typedef NS_ENUM(int, AVReportPolicy) {
 } ;
 
 @protocol AVAnalyticsDelegate;
-@class CLLocation;
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -45,6 +44,11 @@ NS_ASSUME_NONNULL_BEGIN
  *  稳定实时的数据统计分析服务，从用户量，用户行为，渠道效果，自定义事件等多个维度，帮助您更清楚的了解用户习惯，提高用户黏性和活跃度
  */
 @interface AVAnalytics : NSObject
+
+/**
+ Start analytics.
+ */
++ (void)start AV_DEPRECATED("Analytics is deprecated.");
 
 /**
  *  设置渠道名称, 如果不设置, 默认是 `App Store`
@@ -310,12 +314,6 @@ NS_ASSUME_NONNULL_BEGIN
  */
 
 + (void)setLatitude:(double)latitude longitude:(double)longitude;
-
-/** 为了更精确的统计用户地理位置，可以调用此方法传入经纬度信息
- @param location CLLocation *型的地理信息
- */
-+ (void)setLocation:(CLLocation *)location;
-
 
 /**
  *  设置自定义信息
