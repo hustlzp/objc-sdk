@@ -27,17 +27,11 @@
 In Podfile:
 
 ```
-source 'https://github.com/CocoaPods/Specs.git'
 source 'git@github.com:hustlzp/Specs.git'
+source 'https://github.com/CocoaPods/Specs.git'
 
-pod 'XCZAVOSCloud', '~> 11.6.1.100'
-pod 'XCZAVOSCloudIM', '~> 11.6.1.100'
-```
-
-In Swift code:
-
-```
-import XCZAVOSCloud
+pod 'AVOSCloud', '11.6.1.100'
+pod 'AVOSCloudIM', '11.6.1.100'
 ```
 
 ## Push to Private Repo
@@ -45,6 +39,6 @@ import XCZAVOSCloud
 ```
 git tag xx.xx.xx.xx
 git push --tags
-pod repo push xcz-specs /var/www/objc-sdk/XCZAVOSCloud.podspec --allow-warnings --use-libraries
-pod repo push xcz-specs /var/www/objc-sdk/XCZAVOSCloudIM.podspec --allow-warnings --use-libraries
+pod repo push xcz-specs /var/www/objc-sdk/AVOSCloud.podspec --allow-warnings --verbose
+pod repo push xcz-specs /var/www/objc-sdk/AVOSCloudIM.podspec --allow-warnings --verbose
 ```

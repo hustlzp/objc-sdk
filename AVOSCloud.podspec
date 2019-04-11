@@ -1,5 +1,5 @@
 Pod::Spec.new do |s|
-  s.name     = 'XCZAVOSCloud'
+  s.name     = 'AVOSCloud'
   s.version  = '11.6.1.100'
   s.homepage = 'https://leancloud.cn/'
   s.summary  = 'LeanCloud Objective-C SDK'
