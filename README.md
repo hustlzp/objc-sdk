@@ -34,7 +34,7 @@ pod 'AVOSCloud', '11.6.1.100'
 pod 'AVOSCloudIM', '11.6.1.100'
 ```
 
-## Fetch from upstreamƒ
+## Fetch from upstream
 
 ```
 git fetch upstream
