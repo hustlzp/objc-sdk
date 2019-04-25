@@ -30,8 +30,8 @@ In Podfile:
 source 'git@github.com:hustlzp/Specs.git'
 source 'https://github.com/CocoaPods/Specs.git'
 
-pod 'AVOSCloud', '11.6.1.100'
-pod 'AVOSCloudIM', '11.6.1.100'
+pod 'AVOSCloud', '11.6.2.100'
+pod 'AVOSCloudIM', '11.6.2.100'
 ```
 
 ## Fetch from upstream
