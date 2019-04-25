@@ -8,6 +8,7 @@ Pod::Spec.new do |s|
     :type => 'Apache License, Version 2.0',
     :file => 'LICENSE'
   }
+  s.swift_version = '5.0'
 
   s.platform = :ios, :osx, :tvos, :watchos
 
