@@ -15,6 +15,8 @@
 		05BCB8E7210F24020084D0D2 /* AVCloud+Cache.h in Headers */ = {isa = PBXBuildFile; fileRef = 05BCB8DF210F10D40084D0D2 /* AVCloud+Cache.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		05BCB8E8210F24030084D0D2 /* AVCloud+Cache.h in Headers */ = {isa = PBXBuildFile; fileRef = 05BCB8DF210F10D40084D0D2 /* AVCloud+Cache.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		05BCB8E9210F24030084D0D2 /* AVCloud+Cache.h in Headers */ = {isa = PBXBuildFile; fileRef = 05BCB8DF210F10D40084D0D2 /* AVCloud+Cache.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		05FBC1D62271B6F300396101 /* Extension.swift in Sources */ = {isa = PBXBuildFile; fileRef = 05FBC1D52271B6F300396101 /* Extension.swift */; };
+		05FBC1DC2271C9C100396101 /* PromiseKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 05FBC1DB2271C9C100396101 /* PromiseKit.framework */; };
 		701881F51BC6777200432D43 /* AVFileQuery.m in Sources */ = {isa = PBXBuildFile; fileRef = 701881F31BC6777200432D43 /* AVFileQuery.m */; };
 		701881F61BC6777200432D43 /* AVFileQuery.h in Headers */ = {isa = PBXBuildFile; fileRef = 701881F41BC6777200432D43 /* AVFileQuery.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		70344DD41B71C4F600C3DAD9 /* TestRelation.json in Resources */ = {isa = PBXBuildFile; fileRef = 70344DD31B71C4F600C3DAD9 /* TestRelation.json */; };
@@ -1095,7 +1097,10 @@
 		053F2A3221821A1100210FB7 /* zh-Hant-TW */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = "zh-Hant-TW"; path = "zh-Hant-TW.lproj/LaunchScreen.strings"; sourceTree = "<group>"; };
 		05BCB8DF210F10D40084D0D2 /* AVCloud+Cache.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "AVCloud+Cache.h"; sourceTree = "<group>"; };
 		05BCB8E0210F10D40084D0D2 /* AVCloud+Cache.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "AVCloud+Cache.m"; sourceTree = "<group>"; };
-		05FF7A0D21FF5CA10000C7A2 /* XCZAVOSCloud.podspec */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = XCZAVOSCloud.podspec; path = ../XCZAVOSCloud.podspec; sourceTree = "<group>"; };
+		05FBC1D52271B6F300396101 /* Extension.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Extension.swift; sourceTree = "<group>"; };
+		05FBC1D82271C6D900396101 /* PromiseKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = PromiseKit.framework; path = ../Carthage/Build/iOS/PromiseKit.framework; sourceTree = "<group>"; };
+		05FBC1DB2271C9C100396101 /* PromiseKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = PromiseKit.framework; path = Carthage/Build/iOS/PromiseKit.framework; sourceTree = "<group>"; };
+		05FF7A0D21FF5CA10000C7A2 /* AVOSCloud.podspec */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = AVOSCloud.podspec; path = ../AVOSCloud.podspec; sourceTree = "<group>"; };
 		701881F31BC6777200432D43 /* AVFileQuery.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = AVFileQuery.m; sourceTree = "<group>"; };
 		701881F41BC6777200432D43 /* AVFileQuery.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AVFileQuery.h; sourceTree = "<group>"; };
 		70344DD31B71C4F600C3DAD9 /* TestRelation.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = TestRelation.json; sourceTree = "<group>"; };
@@ -1557,6 +1562,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				05FBC1DC2271C9C100396101 /* PromiseKit.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1849,6 +1855,7 @@
 		8C8419881A5A791300C5C6C4 /* AVOSCloud */ = {
 			isa = PBXGroup;
 			children = (
+				05FBC1D52271B6F300396101 /* Extension.swift */,
 				8C841AAC1A5A7A0000C5C6C4 /* UserAgent.h */,
 				8C8419F31A5A79FF00C5C6C4 /* AVConstants.h */,
 				8C8419F41A5A79FF00C5C6C4 /* AVGlobal.h */,
@@ -2326,7 +2333,7 @@
 		D3078A592010417800A4C5FD /* Podspec */ = {
 			isa = PBXGroup;
 			children = (
-				05FF7A0D21FF5CA10000C7A2 /* XCZAVOSCloud.podspec */,
+				05FF7A0D21FF5CA10000C7A2 /* AVOSCloud.podspec */,
 				D3078A5D201041B200A4C5FD /* AVOSCloudIM.podspec */,
 				D3078A5A201041B200A4C5FD /* AVOSCloudLiveQuery.podspec */,
 			);
@@ -2409,6 +2416,8 @@
 		D328B8E320FC863F0039091A /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
+				05FBC1DB2271C9C100396101 /* PromiseKit.framework */,
+				05FBC1D82271C6D900396101 /* PromiseKit.framework */,
 			);
 			name = Frameworks;
 			sourceTree = "<group>";
@@ -3399,10 +3408,9 @@
 			};
 			buildConfigurationList = 8C84197E1A5A78E100C5C6C4 /* Build configuration list for PBXProject "AVOS" */;
 			compatibilityVersion = "Xcode 3.2";
-			developmentRegion = English;
+			developmentRegion = en;
 			hasScannedForEncodings = 0;
 			knownRegions = (
-				English,
 				en,
 				Base,
 				"zh-Hans",
@@ -3864,6 +3872,7 @@
 				8C841B311A5A7A0000C5C6C4 /* AVRequestOperation.m in Sources */,
 				8C841ADF1A5A7A0000C5C6C4 /* AVFile.m in Sources */,
 				83DF02B71AF86032000E289C /* LCDatabaseQueue.m in Sources */,
+				05FBC1D62271B6F300396101 /* Extension.swift in Sources */,
 				7068A7241BA3614D0004623A /* AVRequestManager.m in Sources */,
 				701881F51BC6777200432D43 /* AVFileQuery.m in Sources */,
 				83DF02B31AF86032000E289C /* LCDatabaseAdditions.m in Sources */,
@@ -5108,6 +5117,7 @@
 				DEFINES_MODULE = YES;
 				DYLIB_INSTALL_NAME_BASE = "@rpath";
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				FRAMEWORK_SEARCH_PATHS = "$(PROJECT_DIR)/Carthage/Build/iOS";
 				GCC_C_LANGUAGE_STANDARD = gnu99;
 				GCC_DYNAMIC_NO_PIC = NO;
 				GCC_GENERATE_DEBUGGING_SYMBOLS = YES;
@@ -5140,7 +5150,7 @@
 				PRODUCT_NAME = AVOSCloud;
 				SKIP_INSTALL = YES;
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
-				SWIFT_VERSION = 3.0;
+				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
 				VERSIONING_SYSTEM = "apple-generic";
 				VERSION_INFO_PREFIX = "";
@@ -5176,6 +5186,7 @@
 				DYLIB_INSTALL_NAME_BASE = "@rpath";
 				ENABLE_NS_ASSERTIONS = NO;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				FRAMEWORK_SEARCH_PATHS = "$(PROJECT_DIR)/Carthage/Build/iOS";
 				GCC_C_LANGUAGE_STANDARD = gnu99;
 				GCC_GENERATE_DEBUGGING_SYMBOLS = YES;
 				GCC_PREFIX_HEADER = "";
@@ -5199,7 +5210,7 @@
 				PRODUCT_BUNDLE_IDENTIFIER = "com.avoscloud.AVOSCloud-iOS";
 				PRODUCT_NAME = AVOSCloud;
 				SKIP_INSTALL = YES;
-				SWIFT_VERSION = 3.0;
+				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
 				VALIDATE_PRODUCT = YES;
 				VERSIONING_SYSTEM = "apple-generic";
@@ -5210,6 +5221,7 @@
 		8C84199E1A5A791300C5C6C4 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
 				ALWAYS_SEARCH_USER_PATHS = NO;
 				CLANG_CXX_LANGUAGE_STANDARD = "gnu++0x";
 				CLANG_CXX_LIBRARY = "libc++";
@@ -5277,6 +5289,7 @@
 		8C84199F1A5A791300C5C6C4 /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
 				ALWAYS_SEARCH_USER_PATHS = NO;
 				CLANG_CXX_LANGUAGE_STANDARD = "gnu++0x";
 				CLANG_CXX_LIBRARY = "libc++";
@@ -5465,6 +5478,7 @@
 		8C8419DA1A5A796000C5C6C4 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
 				ALWAYS_SEARCH_USER_PATHS = NO;
 				CLANG_CXX_LANGUAGE_STANDARD = "gnu++0x";
 				CLANG_CXX_LIBRARY = "libc++";
@@ -5529,6 +5543,7 @@
 		8C8419DB1A5A796000C5C6C4 /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
 				ALWAYS_SEARCH_USER_PATHS = NO;
 				CLANG_CXX_LANGUAGE_STANDARD = "gnu++0x";
 				CLANG_CXX_LIBRARY = "libc++";
