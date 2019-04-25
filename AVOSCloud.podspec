@@ -24,7 +24,7 @@ Pod::Spec.new do |s|
   }
 
   s.source_files =
-    'AVOS/AVOSCloud/**/*.{h,m}'
+    'AVOS/AVOSCloud/**/*.{h,m,.swift}'
 
   s.public_header_files =
     'AVOS/AVOSCloud/Captcha/AVCaptcha.h',
@@ -114,4 +114,6 @@ Pod::Spec.new do |s|
     'icucore',
     'sqlite3',
     'z'
+
+  s.dependency 'PromiseKit', "~> 6.8"
 end
