@@ -12,8 +12,8 @@ Pod::Spec.new do |s|
 
   s.platform = :ios, :osx, :tvos, :watchos
 
-  s.ios.deployment_target     = '7.0'
-  s.osx.deployment_target     = '10.9'
+  s.ios.deployment_target     = '8.0'
+  s.osx.deployment_target     = '10.11'
   s.tvos.deployment_target    = '9.0'
   s.watchos.deployment_target = '2.0'
 
@@ -116,5 +116,5 @@ Pod::Spec.new do |s|
     'sqlite3',
     'z'
 
-  s.dependency 'PromiseKit', "~> 6.8"
+  s.dependency 'PromiseKit', "~> 6.8.4"
 end
