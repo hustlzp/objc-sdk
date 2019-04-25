@@ -34,6 +34,14 @@ pod 'AVOSCloud', '11.6.1.100'
 pod 'AVOSCloudIM', '11.6.1.100'
 ```
 
+## Fetch from upstreamƒ
+
+```
+git fetch upstream
+git checkout master
+git merge upstream/master
+```
+
 ## Push to Private Repo
 
 ```
