@@ -50,8 +50,35 @@ extension AVCloud {
             })
         }
     }
+    
+    /// RPC 调用云函数（推断类型）
+    ///
+    /// - Parameters:
+    ///   - _: <#_ description#>
+    ///   - name: <#name description#>
+    ///   - cachePolicy: <#cachePolicy description#>
+    ///   - maxCacheAge: <#maxCacheAge description#>
+    ///   - parameters: <#parameters description#>
+    /// - Returns: <#return value description#>
+    public class func rpcFunction<T>(_: PMKNamespacer, name: String, cachePolicy: AVCachePolicy, maxCacheAge: TimeInterval, parameters: [String: Any?]?) -> Promise<T> {
+        return Promise { resolver in
+            rpcFunction(inBackground: name, withParameters: parameters, cachePolicy: cachePolicy, maxCacheAge: maxCacheAge, block: { (result, fromCache, error) in
+                guard error == nil else {
+                    resolver.reject(error!)
+                    return
+                }
+                
+                guard let object = result as? T else {
+                    resolver.reject(NSError(domain: kLeanCloudErrorDomain, code: kAVErrorIncorrectType, userInfo: [NSLocalizedDescriptionKey: "Return data's type should be \(T.self)"]))
+                    return
+                }
+                
+                resolver.fulfill(object)
+            })
+        }
+    }
 
-    /// RPC 调用云函数
+    /// RPC 调用云函数（任意类型）
     ///
     /// - Parameters:
     ///   - _: <#_ description#>
