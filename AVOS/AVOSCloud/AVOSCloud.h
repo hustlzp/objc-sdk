@@ -63,6 +63,8 @@
 // Router
 #import "LCRouter.h"
 
+#import "AVOSCloud-Swift.h"
+
 #if TARGET_OS_IOS && !TARGET_OS_WATCH
 // Analytics
 #import "AVAnalytics.h"

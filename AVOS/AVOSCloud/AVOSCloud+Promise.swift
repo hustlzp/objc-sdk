@@ -10,13 +10,13 @@
 import Foundation
 
 extension AVCloud {
-    class func callFunction(_: PMKNamespacer, name: String, parameters: [String: Any]?) -> Promise<Any?> {
+    public class func callFunction(_: PMKNamespacer, name: String, parameters: [String: Any]?) -> Promise<Any?> {
         return Promise {
             callFunction(inBackground: name, withParameters: parameters, block: $0.resolve)
         }
     }
     
-    class func rpcFunction<T>(_: PMKNamespacer, name: String, cachePolicy: AVCachePolicy, maxCacheAge: TimeInterval, parameters: [String: Any?]?) -> Promise<T> {
+    public class func rpcFunction<T>(_: PMKNamespacer, name: String, cachePolicy: AVCachePolicy, maxCacheAge: TimeInterval,b parameters: [String: Any?]?) -> Promise<T> {
         return Promise { resolver in
             rpcFunction(inBackground: name, withParameters: parameters, cachePolicy: cachePolicy, maxCacheAge: maxCacheAge, block: { (result, fromCache, error) in
                 guard error == nil else {
