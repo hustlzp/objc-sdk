@@ -20,7 +20,7 @@ Pod::Spec.new do |s|
   }
 
   s.source_files =
-    'AVOS/AVOSCloudLiveQuery/**/*.{h,m}'
+    'AVOS/AVOSCloudLiveQuery/**/*.{h,m,swift}'
 
   s.public_header_files =
     'AVOS/AVOSCloudLiveQuery/AVLiveQuery.h',
