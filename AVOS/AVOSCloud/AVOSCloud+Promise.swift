@@ -24,7 +24,7 @@ extension AVCloud {
         }
     }
     
-    /// RPC 调用云函数
+    /// RPC 调用云函数（传入类型）
     ///
     /// - Parameters:
     ///   - _: <#_ description#>
