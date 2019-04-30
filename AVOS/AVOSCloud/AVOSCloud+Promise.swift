@@ -24,6 +24,56 @@ extension AVCloud {
         }
     }
     
+    /// 调用云函数（类型推导）
+    ///
+    /// - Parameters:
+    ///   - _: <#_ description#>
+    ///   - name: <#name description#>
+    ///   - parameters: <#parameters description#>
+    /// - Returns: <#return value description#>
+    public class func callFunction<T>(_: PMKNamespacer, name: String, parameters: [String: Any]?) -> Promise<T> {
+        return Promise { resolver in
+            callFunction(inBackground: name, withParameters: parameters, block: { (result, error) in
+                guard error == nil else {
+                    resolver.reject(error!)
+                    return
+                }
+                
+                guard let object = result as? T else {
+                    resolver.reject(NSError(domain: kLeanCloudErrorDomain, code: kAVErrorIncorrectType, userInfo: [NSLocalizedDescriptionKey: "Return data's type should be \(T.self)"]))
+                    return
+                }
+                
+                resolver.fulfill(object)
+            })
+        }
+    }
+    
+    /// 调用云函数（传入类型）
+    ///
+    /// - Parameters:
+    ///   - _: <#_ description#>
+    ///   - name: <#name description#>
+    ///   - parameters: <#parameters description#>
+    /// - Returns: <#return value description#>
+    public class func callFunction<T>(_: PMKNamespacer, name: String, parameters: [String: Any]?, type: T.Type) -> Promise<T> {
+        return Promise { resolver in
+            callFunction(inBackground: name, withParameters: parameters, block: { (result, error) in
+                guard error == nil else {
+                    resolver.reject(error!)
+                    return
+                }
+                
+                guard let object = result as? T else {
+                    resolver.reject(NSError(domain: kLeanCloudErrorDomain, code: kAVErrorIncorrectType, userInfo: [NSLocalizedDescriptionKey: "Return data's type should be \(T.self)"]))
+                    return
+                }
+                
+                resolver.fulfill(object)
+            })
+        }
+    }
+    
     /// RPC 调用云函数（传入类型）
     ///
     /// - Parameters:
@@ -51,7 +101,7 @@ extension AVCloud {
         }
     }
     
-    /// RPC 调用云函数（推断类型）
+    /// RPC 调用云函数（类型推导）
     ///
     /// - Parameters:
     ///   - _: <#_ description#>
@@ -78,7 +128,7 @@ extension AVCloud {
         }
     }
 
-    /// RPC 调用云函数（任意类型）
+    /// RPC 调用云函数
     ///
     /// - Parameters:
     ///   - _: <#_ description#>
@@ -179,4 +229,17 @@ extension AVUser {
             })
         })
     }
+    
+    /// 注册
+    ///
+    /// - Parameter _: <#_ description#>
+    /// - Returns: <#return value description#>
+    public func signUp(_: PMKNamespacer) -> Promise<Void> {
+        return Promise(resolver: { (seal) in
+            self.signUpInBackground({ (succeeded, error) in
+                seal.resolve(error)
+            })
+        })
+    }
+    
 }
