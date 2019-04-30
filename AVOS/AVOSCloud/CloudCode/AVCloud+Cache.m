@@ -71,10 +71,6 @@
     }
 }
 
-+ (void)rpcFunctionInBackground:(NSString *)function cachePolicy:(AVCachePolicy)cachePolicy maxCacheAge:(NSTimeInterval)maxCacheAge block:(AVIdResultWithCacheFlagBlock)block {
-    [AVCloud rpcFunctionInBackground:function withParameters:nil cachePolicy:cachePolicy maxCacheAge:maxCacheAge block:block];
-}
-
 + (void)rpcFunctionFromNetwork:(NSString *)function withParameters:(nullable id)parameters cachePolicy:(AVCachePolicy)cachePolicy block:(AVIdResultWithCacheFlagBlock)block
 {
     NSDictionary *serializedParameters = nil;
