@@ -167,6 +167,23 @@ extension PromiseAVObject where Self: AVObject {
             })
         })
     }
+    
+    /// 删除对象
+    ///
+    /// - Parameter _: <#_ description#>
+    /// - Returns: <#return value description#>
+    public func delete(_: PMKNamespacer) -> Promise<Void> {
+        return Promise<Void>(resolver: { (seal) in
+            deleteInBackground({ (succeeded, error) in
+                guard succeeded else {
+                    seal.reject(error ?? NSError(domain: kLeanCloudErrorDomain, code: kAVErrorInternalServer, userInfo: nil))
+                    return
+                }
+                
+                seal.resolve(error)
+            })
+        })
+    }
 }
 
 extension AVUser {
@@ -181,6 +198,14 @@ extension AVUser {
     public class func logInWithUsername(_: PMKNamespacer, _ username: String, password: String) -> Promise<AVUser> {
         return Promise<AVUser>(resolver: { (seal) in
             AVUser.logInWithUsername(inBackground: username, password: password, block: { (user, error) in
+                seal.resolve(user, error)
+            })
+        })
+    }
+    
+    public class func logInWithMobilePhone(_: PMKNamespacer, _ phone: String, password: String) -> Promise<AVUser> {
+        return Promise<AVUser>(resolver: { (seal) in
+            AVUser.logInWithMobilePhoneNumber(inBackground: phone, password: password, block: { (user, error) in
                 seal.resolve(user, error)
             })
         })
@@ -238,6 +263,60 @@ extension AVUser {
         return Promise(resolver: { (seal) in
             self.signUpInBackground({ (succeeded, error) in
                 seal.resolve(error)
+            })
+        })
+    }
+    
+    /// 关注
+    ///
+    /// - Parameters:
+    ///   - _: <#_ description#>
+    ///   - userId: <#userId description#>
+    /// - Returns: <#return value description#>
+    public func follow(_: PMKNamespacer, _ userId: String) -> Promise<Void> {
+        return Promise(resolver: { (seal) in
+            follow(userId, andCallback: { (succeeded, error) in
+                guard succeeded else {
+                    seal.reject(error ?? NSError(domain: kLeanCloudErrorDomain, code: kAVErrorInternalServer, userInfo: nil))
+                    return
+                }
+                
+                seal.resolve(error)
+            })
+        })
+    }
+    
+    /// 取消关注
+    ///
+    /// - Parameters:
+    ///   - _: <#_ description#>
+    ///   - userId: <#userId description#>
+    /// - Returns: <#return value description#>
+    public func unfollow(_: PMKNamespacer, _ userId: String) -> Promise<Void> {
+        return Promise(resolver: { (seal) in
+            unfollow(userId, andCallback: { (succeeded, error) in
+                guard succeeded else {
+                    seal.reject(error ?? NSError(domain: kLeanCloudErrorDomain, code: kAVErrorInternalServer, userInfo: nil))
+                    return
+                }
+                
+                seal.resolve(error)
+            })
+        })
+    }
+    
+}
+
+extension AVFile {
+    public func upload(progress: ((Int) -> Void)? = nil) -> Promise<AVFile> {
+        return Promise(resolver: { (seal) in
+            self.upload(progress: progress, completionHandler: { (succeeded, error) in
+                guard error == nil else {
+                    seal.reject(error!)
+                    return
+                }
+                
+                seal.fulfill(self)
             })
         })
     }
