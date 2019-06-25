@@ -322,3 +322,41 @@ extension AVFile {
     }
     
 }
+
+extension AVSMS {
+    /// 发送验证码
+    ///
+    /// - Parameters:
+    ///   - mobilePhoneNumber: <#mobilePhoneNumber description#>
+    ///   - applicationName: <#applicationName description#>
+    ///   - operation: <#operation description#>
+    ///   - ttl: <#ttl description#>
+    /// - Returns: <#return value description#>
+    public class func sendSmsCode(_ mobilePhoneNumber: String, applicationName: String, operation: String, ttl: Int = 10) -> Promise<Void> {
+        let option = AVShortMessageRequestOptions()
+        option.ttl = ttl
+        option.applicationName = applicationName
+        option.operation = operation
+        
+        return Promise { resolver in
+            requestShortMessage(forPhoneNumber: mobilePhoneNumber, options: option, callback: { (_, error) in
+                resolver.resolve(error)
+            })
+        }
+    }
+    
+    /// 验证验证码
+    ///
+    /// - Parameters:
+    ///   - code: <#code description#>
+    ///   - mobilePhoneNumber: <#mobilePhoneNumber description#>
+    /// - Returns: <#return value description#>
+    public class func verifySmsCode(_ code: String, mobilePhoneNumber: String) -> Promise<Void> {
+        return Promise { resolver in
+            AVOSCloud.verifySmsCode(code, mobilePhoneNumber: mobilePhoneNumber, callback: { (succeeded, error) in
+                resolver.resolve(error)
+            })
+        }
+    }
+    
+}
