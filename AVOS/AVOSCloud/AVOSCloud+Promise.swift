@@ -275,6 +275,14 @@ extension AVUser {
         })
     }
     
+    public func requestPasswordReset(_: PMKNamespacer, withPhoneNumber phoneNumber: String) -> Promise<Void> {
+        return Promise(resolver: { (seal) in
+            AVUser.requestPasswordReset(withPhoneNumber: phoneNumber, block: { (_, error) in
+                seal.resolve(error)
+            })
+        })
+    }
+    
     public class func resetPassword(_: PMKNamespacer, withSmsCode code: String, newPassword: String) -> Promise<Void> {
         return Promise(resolver: { (seal) in
             self.resetPassword(withSmsCode: code, newPassword: newPassword, block: { (_, error) in
