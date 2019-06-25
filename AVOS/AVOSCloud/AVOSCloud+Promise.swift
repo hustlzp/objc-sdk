@@ -255,6 +255,14 @@ extension AVUser {
         })
     }
     
+    public func updatePassword(_: PMKNamespacer, _ oldPassword: String, _ newPassword: String) -> Promise<Void> {
+        return Promise<Void>(resolver: { (seal) in
+            self.updatePassword(oldPassword, newPassword: newPassword) { (_, error) in
+                seal.resolve(error)
+            }
+        })
+    }
+    
     /// 注册
     ///
     /// - Parameter _: <#_ description#>
@@ -308,7 +316,7 @@ extension AVUser {
 }
 
 extension AVFile {
-    public func upload(progress: ((Int) -> Void)? = nil) -> Promise<AVFile> {
+    public func upload(_: PMKNamespacer, progress: ((Int) -> Void)? = nil) -> Promise<AVFile> {
         return Promise(resolver: { (seal) in
             self.upload(progress: progress, completionHandler: { (succeeded, error) in
                 guard error == nil else {
@@ -332,7 +340,7 @@ extension AVSMS {
     ///   - operation: <#operation description#>
     ///   - ttl: <#ttl description#>
     /// - Returns: <#return value description#>
-    public class func sendSmsCode(_ mobilePhoneNumber: String, applicationName: String, operation: String, ttl: Int = 10) -> Promise<Void> {
+    public class func sendSmsCode(_: PMKNamespacer, _ mobilePhoneNumber: String, applicationName: String, operation: String, ttl: Int = 10) -> Promise<Void> {
         let option = AVShortMessageRequestOptions()
         option.ttl = ttl
         option.applicationName = applicationName
@@ -351,7 +359,7 @@ extension AVSMS {
     ///   - code: <#code description#>
     ///   - mobilePhoneNumber: <#mobilePhoneNumber description#>
     /// - Returns: <#return value description#>
-    public class func verifySmsCode(_ code: String, mobilePhoneNumber: String) -> Promise<Void> {
+    public class func verifySmsCode(_: PMKNamespacer, _ code: String, mobilePhoneNumber: String) -> Promise<Void> {
         return Promise { resolver in
             AVOSCloud.verifySmsCode(code, mobilePhoneNumber: mobilePhoneNumber, callback: { (succeeded, error) in
                 resolver.resolve(error)
