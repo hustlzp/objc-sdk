@@ -147,10 +147,6 @@ extension AVCloud {
 }
 
 public protocol PromiseAVObject { }
-
-extension AVObject: PromiseAVObject {
-}
-
 extension PromiseAVObject where Self: AVObject {
     public func fetch(_: PMKNamespacer, withKeys keys: [String]? = nil) -> Promise<Self> {
         return Promise<Self>(resolver: { (seal) in
@@ -185,9 +181,38 @@ extension PromiseAVObject where Self: AVObject {
         })
     }
 }
+extension AVObject: PromiseAVObject {
+}
+
+public protocol PromiseAVUser { }
+extension PromiseAVUser where Self: AVUser {
+    /// 第三方登录
+    ///
+    /// - Parameters:
+    ///   - _: <#_ description#>
+    ///   - authData: <#authData description#>
+    ///   - platformId: <#platformId description#>
+    ///   - options: <#options description#>
+    /// - Returns: <#return value description#>
+    public static func login(_: PMKNamespacer, authData: [AnyHashable: Any], platformId: String, options: AVUserAuthDataLoginOption?) -> Promise<Self> {
+        let user = Self()
+        
+        return Promise<Self>(resolver: { (seal) in
+            user.login(withAuthData: authData, platformId: platformId, options: options) { (_, error) in
+                guard error == nil else {
+                    seal.reject(error!)
+                    return
+                }
+                
+                seal.fulfill(user)
+            }
+        })
+    }
+}
+extension AVUser: PromiseAVUser {
+}
 
 extension AVUser {
-    
     /// 用户名登录
     ///
     /// - Parameters:
@@ -301,21 +326,6 @@ extension AVUser {
             self.resetPassword(withSmsCode: code, newPassword: newPassword, block: { (_, error) in
                 seal.resolve(error)
             })
-        })
-    }
-    
-    public class func login(_: PMKNamespacer, authData: [AnyHashable: Any], platformId: String, options: AVUserAuthDataLoginOption?) -> Promise<AVUser> {
-        let user = AVUser()
-        
-        return Promise<AVUser>(resolver: { (seal) in
-            user.login(withAuthData: authData, platformId: platformId, options: options) { (_, error) in
-                guard error == nil else {
-                    seal.reject(error!)
-                    return
-                }
-                
-                seal.fulfill(user)
-            }
         })
     }
     
