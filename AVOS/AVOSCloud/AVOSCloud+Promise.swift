@@ -275,6 +275,12 @@ extension AVUser {
         })
     }
     
+    /// 发送密码重置短信
+    ///
+    /// - Parameters:
+    ///   - _: <#_ description#>
+    ///   - phoneNumber: <#phoneNumber description#>
+    /// - Returns: <#return value description#>
     public class func requestPasswordReset(_: PMKNamespacer, withPhoneNumber phoneNumber: String) -> Promise<Void> {
         return Promise(resolver: { (seal) in
             AVUser.requestPasswordReset(withPhoneNumber: phoneNumber, block: { (_, error) in
@@ -283,9 +289,63 @@ extension AVUser {
         })
     }
     
+    /// 重置密码
+    ///
+    /// - Parameters:
+    ///   - _: <#_ description#>
+    ///   - code: <#code description#>
+    ///   - newPassword: <#newPassword description#>
+    /// - Returns: <#return value description#>
     public class func resetPassword(_: PMKNamespacer, withSmsCode code: String, newPassword: String) -> Promise<Void> {
         return Promise(resolver: { (seal) in
             self.resetPassword(withSmsCode: code, newPassword: newPassword, block: { (_, error) in
+                seal.resolve(error)
+            })
+        })
+    }
+    
+    public class func login(_: PMKNamespacer, authData: [AnyHashable: Any], platformId: String, options: AVUserAuthDataLoginOption?) -> Promise<AVUser> {
+        let user = AVUser()
+        
+        return Promise<AVUser>(resolver: { (seal) in
+            user.login(withAuthData: authData, platformId: platformId, options: options) { (_, error) in
+                guard error == nil else {
+                    seal.reject(error!)
+                    return
+                }
+                
+                seal.fulfill(user)
+            }
+        })
+    }
+    
+    /// 关联第三方账号
+    ///
+    /// - Parameters:
+    ///   - _: <#_ description#>
+    ///   - authData: <#authData description#>
+    ///   - platformId: <#platformId description#>
+    ///   - options: <#options description#>
+    /// - Returns: <#return value description#>
+    public func associate(_: PMKNamespacer, authData: [AnyHashable: Any], platformId: String, options: AVUserAuthDataLoginOption?) -> Promise<Void> {
+        return Promise(resolver: { (seal) in
+            self.associate(withAuthData: authData, platformId: platformId, options: options, callback: { (_, error) in
+                seal.resolve(error)
+            })
+        })
+    }
+    
+    /// 取消关联第三方账号
+    ///
+    /// - Parameters:
+    ///   - _: <#_ description#>
+    ///   - authData: <#authData description#>
+    ///   - platformId: <#platformId description#>
+    ///   - options: <#options description#>
+    /// - Returns: <#return value description#>
+    public func disassociate(_: PMKNamespacer, platformId: String) -> Promise<Void> {
+        return Promise(resolver: { (seal) in
+            self.disassociate(withPlatformId: platformId, callback: { (_, error) in
                 seal.resolve(error)
             })
         })
