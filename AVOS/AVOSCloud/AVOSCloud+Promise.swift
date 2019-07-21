@@ -251,6 +251,22 @@ extension AVUser {
         })
     }
     
+    /// 第三方登录
+    ///
+    /// - Parameters:
+    ///   - _: <#_ description#>
+    ///   - authData: <#authData description#>
+    ///   - platformId: <#platformId description#>
+    ///   - options: <#options description#>
+    /// - Returns: <#return value description#>
+    public func loginWithAuthData(_: PMKNamespacer, _ authData: [AnyHashable: Any], platformId: String, options: AVUserAuthDataLoginOption?) -> Promise<Void> {
+        return Promise(resolver: { (seal) in
+            login(withAuthData: authData, platformId: platformId, options: options) { (_, error) in
+                seal.resolve(error)
+            }
+        })
+    }
+    
     /// 请求验证邮箱
     ///
     /// - Parameters:
