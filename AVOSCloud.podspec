@@ -65,7 +65,6 @@ Pod::Spec.new do |s|
   s.watchos.exclude_files =
     'AVOS/AVOSCloud/Analytics/AVAnalytics.h',
     'AVOS/AVOSCloud/Analytics/AVAnalyticsImpl.h',
-    'AVOS/AVOSCloud/Analytics/AVExceptionHandler.h',
     'AVOS/AVOSCloud/Analytics/AVAnalyticsSession.h',
     'AVOS/AVOSCloud/Utils/AVReachability.h',
     'AVOS/AVOSCloud/Analytics/AVAnalytics_Internal.h',
@@ -73,7 +72,6 @@ Pod::Spec.new do |s|
     'AVOS/AVOSCloud/Analytics/AVAnalyticsSession.m',
     'AVOS/AVOSCloud/Analytics/AVAnalyticsImpl.m',
     'AVOS/AVOSCloud/Analytics/AVAnalyticsActivity.m',
-    'AVOS/AVOSCloud/Analytics/AVExceptionHandler.m',
     'AVOS/AVOSCloud/Utils/AVReachability.m',
     'AVOS/AVOSCloud/Analytics/AVAnalytics.m'
 
