@@ -208,6 +208,15 @@ extension PromiseAVUser where Self: AVUser {
             }
         })
     }
+    
+    public static func loginAnonymously(_: PMKNamespacer) -> Promise<Self> {
+        return Promise<Self>(resolver: { (seal) in
+            self.loginAnonymously(callback: { (user, error) in
+                seal.resolve(Self.current(), error)
+            })
+        })
+    }
+    
 }
 extension AVUser: PromiseAVUser {
 }
