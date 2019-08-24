@@ -479,3 +479,17 @@ extension AVSMS {
     }
     
 }
+
+extension AVQuery {
+    /// 获取对象数目
+    ///
+    /// - Parameter _: <#_ description#>
+    /// - Returns: <#return value description#>
+    func countObjects(_: PMKNamespacer) -> Promise<Int> {
+        return Promise(resolver: { (seal) in
+            self.countObjectsInBackground({ (count, error) in
+                seal.resolve(count, error)
+            })
+        })
+    }
+}
