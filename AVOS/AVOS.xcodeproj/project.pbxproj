@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		051409FF2310EA10007730FB /* PromiseKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 05FBC1DB2271C9C100396101 /* PromiseKit.framework */; };
 		055A2EA32271EE0D00F0C607 /* README.md in Resources */ = {isa = PBXBuildFile; fileRef = 055A2EA22271EE0C00F0C607 /* README.md */; };
 		05BCB8E1210F10D40084D0D2 /* AVCloud+Cache.h in Headers */ = {isa = PBXBuildFile; fileRef = 05BCB8DF210F10D40084D0D2 /* AVCloud+Cache.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		05BCB8E2210F10D40084D0D2 /* AVCloud+Cache.m in Sources */ = {isa = PBXBuildFile; fileRef = 05BCB8E0210F10D40084D0D2 /* AVCloud+Cache.m */; };
@@ -17,7 +18,6 @@
 		05BCB8E8210F24030084D0D2 /* AVCloud+Cache.h in Headers */ = {isa = PBXBuildFile; fileRef = 05BCB8DF210F10D40084D0D2 /* AVCloud+Cache.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		05BCB8E9210F24030084D0D2 /* AVCloud+Cache.h in Headers */ = {isa = PBXBuildFile; fileRef = 05BCB8DF210F10D40084D0D2 /* AVCloud+Cache.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		05FBC1D62271B6F300396101 /* AVOSCloud+Promise.swift in Sources */ = {isa = PBXBuildFile; fileRef = 05FBC1D52271B6F300396101 /* AVOSCloud+Promise.swift */; };
-		05FBC1DC2271C9C100396101 /* PromiseKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 05FBC1DB2271C9C100396101 /* PromiseKit.framework */; };
 		701881F51BC6777200432D43 /* AVFileQuery.m in Sources */ = {isa = PBXBuildFile; fileRef = 701881F31BC6777200432D43 /* AVFileQuery.m */; };
 		701881F61BC6777200432D43 /* AVFileQuery.h in Headers */ = {isa = PBXBuildFile; fileRef = 701881F41BC6777200432D43 /* AVFileQuery.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		70344DD41B71C4F600C3DAD9 /* TestRelation.json in Resources */ = {isa = PBXBuildFile; fileRef = 70344DD31B71C4F600C3DAD9 /* TestRelation.json */; };
@@ -1084,6 +1084,7 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		051409FD2310E9DF007730FB /* PromiseKit-swift51.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = "PromiseKit-swift51.framework"; path = "Carthage/Build/iOS/PromiseKit-swift51.framework"; sourceTree = "<group>"; };
 		053F2A25218219D800210FB7 /* zh-Hans */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = "zh-Hans"; path = "zh-Hans.lproj/Main.strings"; sourceTree = "<group>"; };
 		053F2A26218219D900210FB7 /* zh-Hans */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = "zh-Hans"; path = "zh-Hans.lproj/LaunchScreen.strings"; sourceTree = "<group>"; };
 		053F2A29218219DF00210FB7 /* zh-Hant */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = "zh-Hant"; path = "zh-Hant.lproj/Main.strings"; sourceTree = "<group>"; };
@@ -1556,7 +1557,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				05FBC1DC2271C9C100396101 /* PromiseKit.framework in Frameworks */,
+				051409FF2310EA10007730FB /* PromiseKit.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -2409,6 +2410,7 @@
 		D328B8E320FC863F0039091A /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
+				051409FD2310E9DF007730FB /* PromiseKit-swift51.framework */,
 				05FBC1DB2271C9C100396101 /* PromiseKit.framework */,
 				05FBC1D82271C6D900396101 /* PromiseKit.framework */,
 			);
