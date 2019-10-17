@@ -103,10 +103,6 @@ static BOOL enableAutomatic = NO;
     }];
 }
 
-- (BOOL)isAuthenticated {
-    return [self isAuthDataExistInMemory];
-}
-
 - (NSArray<AVRole *> *)getRoles:(NSError * _Nullable __autoreleasing *)error {
     AVQuery *query = [AVRelation reverseQuery:@"_Role" relationKey:@"users" childObject:self];
     return [query findObjects:error];
@@ -157,11 +153,6 @@ static BOOL enableAutomatic = NO;
     }
 }
 
-- (BOOL)signUp
-{
-    return [self signUp:NULL];
-}
-
 - (BOOL)signUp:(NSError *__autoreleasing *)error
 {
     return [self saveWithOption:nil eventually:NO verifyBefore:NO error:error];
@@ -169,13 +160,6 @@ static BOOL enableAutomatic = NO;
 
 - (BOOL)signUpAndThrowsWithError:(NSError * _Nullable __autoreleasing *)error {
     return [self signUp:error];
-}
-
-- (void)signUpInBackground
-{
-    [self signUpInBackgroundWithBlock:^(BOOL succeeded, NSError * _Nullable error) {
-        /* Ignore result intentionally. */
-    }];
 }
 
 - (void)signUpInBackgroundWithBlock:(AVBooleanResultBlock)block
@@ -281,19 +265,6 @@ static BOOL enableAutomatic = NO;
     
 }
 
-- (void)signUpInBackgroundWithTarget:(id)target selector:(SEL)selector
-{
-    [self signUpInBackgroundWithBlock:^(BOOL succeeded, NSError *error) {
-        [AVUtils performSelectorIfCould:target selector:selector object:@(succeeded) object:error];
-    }];
-}
-
-- (void)updatePassword:(NSString *)oldPassword newPassword:(NSString *)newPassword withTarget:(id)target selector:(SEL)selector {
-    [self updatePassword:oldPassword newPassword:newPassword block:^(id object, NSError *error) {
-        [AVUtils performSelectorIfCould:target selector:selector object:object object:error];
-    }];
-}
-
 - (void)updatePassword:(NSString *)oldPassword newPassword:(NSString *)newPassword block:(AVIdResultBlock)block {
     if (self.isAuthDataExistInMemory && oldPassword && newPassword) {
         NSString *path = [NSString stringWithFormat:@"users/%@/updatePassword", self.objectId];
@@ -375,12 +346,6 @@ static BOOL enableAutomatic = NO;
 
 + (instancetype)logInWithUsername:(NSString *)username
                      password:(NSString *)password
-{
-    return [[self class] logInWithUsername:username password:password error:nil];
-}
-
-+ (instancetype)logInWithUsername:(NSString *)username
-                     password:(NSString *)password
                         error:(NSError **)error
 {
     __block AVUser * resultUser = nil;
@@ -388,24 +353,6 @@ static BOOL enableAutomatic = NO;
         resultUser = user;
     } waitUntilDone:YES error:error];
     return resultUser;
-}
-
-+ (void)logInWithUsernameInBackground:(NSString *)username
-                             password:(NSString *)password
-{
-    [[self class] logInWithUsername:username email:nil password:password block:nil waitUntilDone:YES error:nil];
-}
-
-+ (void)logInWithUsernameInBackground:(NSString *)username
-                             password:(NSString *)password
-                               target:(id)target
-                             selector:(SEL)selector
-{
-    [[self class] logInWithUsernameInBackground:username
-                                       password:password
-                                          block:^(AVUser *user, NSError *error) {
-                                              [AVUtils performSelectorIfCould:target selector:selector object:user object:error];
-                                          }];
 }
 
 + (void)logInWithUsernameInBackground:(NSString *)username
@@ -474,12 +421,6 @@ static BOOL enableAutomatic = NO;
 
 + (instancetype)logInWithMobilePhoneNumber:(NSString *)phoneNumber
                          password:(NSString *)password
-{
-    return [[self class] logInWithMobilePhoneNumber:phoneNumber password:password error:nil];
-}
-
-+ (instancetype)logInWithMobilePhoneNumber:(NSString *)phoneNumber
-                         password:(NSString *)password
                             error:(NSError **)error
 {
     __block AVUser * resultUser = nil;
@@ -487,24 +428,6 @@ static BOOL enableAutomatic = NO;
         resultUser = user;
     } waitUntilDone:YES error:error];
     return resultUser;
-}
-
-+ (void)logInWithMobilePhoneNumberInBackground:(NSString *)phoneNumber
-                             password:(NSString *)password
-{
-    [self logInWithMobilePhoneNumber:phoneNumber password:password block:nil waitUntilDone:YES error:nil];
-}
-
-+ (void)logInWithMobilePhoneNumberInBackground:(NSString *)phoneNumber
-                             password:(NSString *)password
-                               target:(id)target
-                             selector:(SEL)selector
-{
-    [self logInWithMobilePhoneNumberInBackground:phoneNumber
-                                       password:password
-                                          block:^(AVUser *user, NSError *error) {
-                                              [AVUtils performSelectorIfCould:target selector:selector object:user object:error];
-                                          }];
 }
 
 + (void)logInWithMobilePhoneNumberInBackground:(NSString *)phoneNumber
@@ -623,12 +546,6 @@ static BOOL enableAutomatic = NO;
 
 + (instancetype)logInWithMobilePhoneNumber:(NSString *)phoneNumber
                                   smsCode:(NSString *)code
-{
-    return [[self class] logInWithMobilePhoneNumber:phoneNumber smsCode:code error:nil];
-}
-
-+ (instancetype)logInWithMobilePhoneNumber:(NSString *)phoneNumber
-                                  smsCode:(NSString *)code
                                      error:(NSError **)error
 {
     __block AVUser * resultUser = nil;
@@ -636,24 +553,6 @@ static BOOL enableAutomatic = NO;
         resultUser = user;
     } waitUntilDone:YES error:error];
     return resultUser;
-}
-
-+ (void)logInWithMobilePhoneNumberInBackground:(NSString *)phoneNumber
-                                      smsCode:(NSString *)code
-{
-    [self logInWithMobilePhoneNumber:phoneNumber smsCode:code block:nil waitUntilDone:YES error:nil];
-}
-
-+ (void)logInWithMobilePhoneNumberInBackground:(NSString *)phoneNumber
-                                      smsCode:(NSString *)code
-                                        target:(id)target
-                                      selector:(SEL)selector
-{
-    [self logInWithMobilePhoneNumberInBackground:phoneNumber
-                                        smsCode:code
-                                           block:^(AVUser *user, NSError *error) {
-                                               [AVUtils performSelectorIfCould:target selector:selector object:user object:error];
-                                           }];
 }
 
 + (void)logInWithMobilePhoneNumberInBackground:(NSString *)phoneNumber
@@ -724,17 +623,6 @@ static BOOL enableAutomatic = NO;
 + (void)signUpOrLoginWithMobilePhoneNumberInBackground:(NSString *)phoneNumber
                                                smsCode:(NSString *)code {
     [self signUpOrLoginWithMobilePhoneNumber:phoneNumber smsCode:code block:nil waitUntilDone:YES error:nil];
-}
-
-+ (void)signUpOrLoginWithMobilePhoneNumberInBackground:(NSString *)phoneNumber
-                                               smsCode:(NSString *)code
-                                                target:(id)target
-                                              selector:(SEL)selector {
-    [self signUpOrLoginWithMobilePhoneNumberInBackground:phoneNumber
-                                                 smsCode:code
-                                                   block:^(AVUser *user, NSError *error) {
-                                                       [AVUtils performSelectorIfCould:target selector:selector object:user object:error];
-                                                   }];
 }
 
 + (void)signUpOrLoginWithMobilePhoneNumberInBackground:(NSString *)phoneNumber
@@ -811,11 +699,6 @@ static BOOL enableAutomatic = NO;
 // MARK: - password reset
 
 + (BOOL)requestPasswordResetForEmail:(NSString *)email
-{
-    return [[self class] requestPasswordResetForEmail:email error:nil];
-}
-
-+ (BOOL)requestPasswordResetForEmail:(NSString *)email
                                error:(NSError **)resultError
 {
     BOOL wait = YES;
@@ -840,22 +723,6 @@ static BOOL enableAutomatic = NO;
     if (resultError != NULL) *resultError = theError;
     return theResult;
 
-}
-
-+ (void)requestPasswordResetForEmailInBackground:(NSString *)email
-{
-    [[self class] requestPasswordResetForEmailInBackground:email block:^(BOOL succeeded, NSError *error) {
-        
-    }];
-}
-
-+ (void)requestPasswordResetForEmailInBackground:(NSString *)email
-                                          target:(id)target
-                                        selector:(SEL)selector
-{
-    [[self class] requestPasswordResetForEmailInBackground:email block:^(BOOL succeeded, NSError *error) {
-        [AVUtils performSelectorIfCould:target selector:selector object:@(succeeded) object:error];
-    }];    
 }
 
 + (void)requestPasswordResetForEmailInBackground:(NSString *)email
@@ -1111,7 +978,7 @@ static BOOL enableAutomatic = NO;
                 LCErrorInternal(reason);
             });
             
-            callback(nil, aError);
+            callback(false, aError);
         });
         
         return;
@@ -1129,7 +996,7 @@ static BOOL enableAutomatic = NO;
             
             dispatch_async(dispatch_get_main_queue(), ^{
                 
-                callback(nil, error);
+                callback(false, error);
             });
             
             return;
@@ -1141,7 +1008,7 @@ static BOOL enableAutomatic = NO;
             
             dispatch_async(dispatch_get_main_queue(), ^{
                 
-                callback(nil, ({
+                callback(false, ({
                     NSString *reason = @"response invalid.";
                     LCErrorInternal(reason);
                 }));
@@ -1165,47 +1032,8 @@ static BOOL enableAutomatic = NO;
         
         dispatch_async(dispatch_get_main_queue(), ^{
             
-            callback(self, nil);
+            callback(true, nil);
         });
-    }];
-}
-
-+ (void)loginOrSignUpWithAuthData:(NSDictionary *)authData
-                         platform:(NSString *)platform
-                            block:(AVUserResultBlock)block
-{
-    AVUser *user = [self user];
-    [user loginWithAuthData:authData[authDataTag][platform] platformId:platform options:nil callback:^(BOOL succeeded, NSError * _Nullable error) {
-        if (error) {
-            block(nil, error);
-        } else {
-            block(user, nil);
-        }
-    }];
-}
-
-- (void)associateWithAuthData:(NSDictionary *)authData
-                     platform:(NSString *)platform
-                        block:(AVUserResultBlock)block
-{
-    [self associateWithAuthData:authData[authDataTag][platform] platformId:platform options:nil callback:^(BOOL succeeded, NSError * _Nullable error) {
-        if (error) {
-            block(nil, error);
-        } else {
-            block(self, nil);
-        }
-    }];
-}
-
-- (void)disassociateWithPlatform:(NSString *)platform
-                           block:(AVUserResultBlock)block
-{
-    [self disassociateWithPlatformId:platform callback:^(BOOL succeeded, NSError * _Nullable error) {
-        if (error) {
-            block(nil, error);
-        } else {
-            block(self, nil);
-        }
     }];
 }
 
@@ -1330,6 +1158,114 @@ static BOOL enableAutomatic = NO;
     NSDictionary *dict = [self objectForKey:authDataTag];
     return[dict allKeys];
 }
+
+// MARK: Deprecated
+
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wdeprecated-implementations"
+- (BOOL)isAuthenticated {
+    return [self isAuthDataExistInMemory];
+}
+
+- (BOOL)signUp
+{
+    return [self signUp:NULL];
+}
+
+- (void)signUpInBackground
+{
+    [self signUpInBackgroundWithBlock:^(BOOL succeeded, NSError * _Nullable error) {
+        /* Ignore result intentionally. */
+    }];
+}
+
++ (instancetype)logInWithUsername:(NSString *)username
+                         password:(NSString *)password
+{
+    return [[self class] logInWithUsername:username password:password error:nil];
+}
+
++ (void)logInWithUsernameInBackground:(NSString *)username
+                             password:(NSString *)password
+{
+    [[self class] logInWithUsername:username email:nil password:password block:nil waitUntilDone:YES error:nil];
+}
+
++ (instancetype)logInWithMobilePhoneNumber:(NSString *)phoneNumber
+                                  password:(NSString *)password
+{
+    return [[self class] logInWithMobilePhoneNumber:phoneNumber password:password error:nil];
+}
+
++ (void)logInWithMobilePhoneNumberInBackground:(NSString *)phoneNumber
+                                      password:(NSString *)password
+{
+    [self logInWithMobilePhoneNumber:phoneNumber password:password block:nil waitUntilDone:YES error:nil];
+}
+
++ (instancetype)logInWithMobilePhoneNumber:(NSString *)phoneNumber
+                                   smsCode:(NSString *)code
+{
+    return [[self class] logInWithMobilePhoneNumber:phoneNumber smsCode:code error:nil];
+}
+
++ (void)logInWithMobilePhoneNumberInBackground:(NSString *)phoneNumber
+                                       smsCode:(NSString *)code
+{
+    [self logInWithMobilePhoneNumber:phoneNumber smsCode:code block:nil waitUntilDone:YES error:nil];
+}
+
++ (BOOL)requestPasswordResetForEmail:(NSString *)email
+{
+    return [[self class] requestPasswordResetForEmail:email error:nil];
+}
+
++ (void)requestPasswordResetForEmailInBackground:(NSString *)email
+{
+    [[self class] requestPasswordResetForEmailInBackground:email block:^(BOOL succeeded, NSError *error) {
+        
+    }];
+}
+
++ (void)loginOrSignUpWithAuthData:(NSDictionary *)authData
+                         platform:(NSString *)platform
+                            block:(AVUserResultBlock)block
+{
+    AVUser *user = [self user];
+    [user loginWithAuthData:authData[authDataTag][platform] platformId:platform options:nil callback:^(BOOL succeeded, NSError * _Nullable error) {
+        if (error) {
+            block(nil, error);
+        } else {
+            block(user, nil);
+        }
+    }];
+}
+
+- (void)associateWithAuthData:(NSDictionary *)authData
+                     platform:(NSString *)platform
+                        block:(AVUserResultBlock)block
+{
+    [self associateWithAuthData:authData[authDataTag][platform] platformId:platform options:nil callback:^(BOOL succeeded, NSError * _Nullable error) {
+        if (error) {
+            block(nil, error);
+        } else {
+            block(self, nil);
+        }
+    }];
+}
+
+- (void)disassociateWithPlatform:(NSString *)platform
+                           block:(AVUserResultBlock)block
+{
+    [self disassociateWithPlatformId:platform callback:^(BOOL succeeded, NSError * _Nullable error) {
+        if (error) {
+            block(nil, error);
+        } else {
+            block(self, nil);
+        }
+    }];
+}
+#pragma clang diagnostic pop
 
 @end
 

@@ -21,13 +21,6 @@ typedef void (^AVIMCommandResultBlock)(AVIMGenericCommand *outCommand, AVIMGener
 @property (nonatomic, assign) BOOL needResponse;
 
 /*!
- 序列化时必须要调用。为AVIMGenericCommand对象添加必要的三个字段：needResponse、SerialId、messageObject，，在command完全初始化之后调用
- @param command 具体的Command对象
- *
- */
-- (void)avim_addRequiredKeyWithCommand:(LCIMMessage *)command;
-
-/*!
  序列化时必须要调用。为AVIMGenericCommand对象添加必要的三个字段：s、t、n
  @param signature AVIMSignature签名对象
  *
@@ -53,7 +46,7 @@ typedef void (^AVIMCommandResultBlock)(AVIMGenericCommand *outCommand, AVIMGener
  反序列化时获取Command所属的具体的消息类型对象
  @return Command所属的具体的消息类型对象
  */
-- (LCIMMessage *)avim_messageCommand;
+- (LCGPBMessage *)avim_messageCommand;
 
 /*!
  做 conversation 缓存时，为了使 key 能兼容，需要将 AVIMGenericCommand 对象转换为 AVIMConversationOutCommand 对象

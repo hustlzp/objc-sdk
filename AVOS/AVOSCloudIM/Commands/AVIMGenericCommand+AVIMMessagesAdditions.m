@@ -36,68 +36,6 @@ NSString *const kAVIMConversationOperationQuery = @"query";
     objc_setAssociatedObject(self, @selector(needResponse), needResponseObject, OBJC_ASSOCIATION_RETAIN_NONATOMIC);
 }
 
-- (void)avim_addRequiredKeyWithCommand:(LCIMMessage *)command {
-    AVIMCommandType commandType = self.cmd;
-    switch (commandType) {
-            
-        case AVIMCommandType_Session:
-            self.sessionMessage = (AVIMSessionCommand *)command;
-            break;
-            
-        case AVIMCommandType_Conv:
-            self.convMessage = (AVIMConvCommand *)command;
-            break;
-            
-        case AVIMCommandType_Direct:
-            self.directMessage = (AVIMDirectCommand *)command;
-            break;
-            
-        case AVIMCommandType_Ack:
-            self.ackMessage = (AVIMAckCommand *)command;
-            self.needResponse = NO;
-            break;
-            
-        case AVIMCommandType_Rcp:
-            self.rcpMessage = (AVIMRcpCommand *)command;
-            break;
-            
-        case AVIMCommandType_Unread:
-            self.unreadMessage = (AVIMUnreadCommand *)command;
-            break;
-            
-        case AVIMCommandType_Logs:
-            self.logsMessage = (AVIMLogsCommand *)command;
-            break;
-            
-        case AVIMCommandType_Error:
-            self.errorMessage = (AVIMErrorCommand *)command;
-            break;
-            
-        case AVIMCommandType_Data:
-            self.dataMessage = (AVIMDataCommand *)command;
-            break;
-            
-        case AVIMCommandType_Room:
-            self.roomMessage = (AVIMRoomCommand *)command;
-            break;
-            
-        case AVIMCommandType_Read:
-            self.readMessage = (AVIMReadCommand *)command;
-            break;
-            
-        case AVIMCommandType_Presence :
-            self.presenceMessage = (AVIMPresenceCommand *)command;
-            break;
-            
-        case AVIMCommandType_Report:
-            self.reportMessage = (AVIMReportCommand *)command;
-            break;
-            
-        default:
-            break;
-    }
-}
-
 - (void)avim_addRequiredKeyForConvMessageWithSignature:(AVIMSignature *)signature {
     NSAssert(self.hasConvMessage, ([NSString stringWithFormat:@"before call %@, make sure you have called `-avim_addRequiredKey`", NSStringFromSelector(_cmd)]));
     if (signature) {
@@ -242,8 +180,8 @@ NSString *const kAVIMConversationOperationQuery = @"query";
     return [requiredKeys copy];
 }
 
-- (LCIMMessage *)avim_messageCommand {
-    LCIMMessage *result = nil;
+- (LCGPBMessage *)avim_messageCommand {
+    LCGPBMessage *result = nil;
     AVIMCommandType commandType = self.cmd;
     switch (commandType) {
             
@@ -326,7 +264,7 @@ NSString *const kAVIMConversationOperationQuery = @"query";
 }
 
 - (NSString *)avim_messageClass {
-    LCIMMessage *command = [self avim_messageCommand];
+    LCGPBMessage *command = [self avim_messageCommand];
     Class class = [command class];
     NSString *avim_messageClass = NSStringFromClass(class);
     return avim_messageClass;

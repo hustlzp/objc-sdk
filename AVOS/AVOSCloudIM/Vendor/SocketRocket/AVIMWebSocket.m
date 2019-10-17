@@ -221,8 +221,6 @@ typedef void (^data_callback)(AVIMWebSocket *webSocket,  NSData *data);
     NSString *_secKey;
     NSString *_basicAuthorizationString;
     
-    BOOL _pinnedCertFound;
-    
     uint8_t _currentReadMaskKey[4];
     size_t _currentReadMaskOffset;
 
@@ -484,10 +482,10 @@ static __strong NSData *CRLFCRLF;
     }
                         
     [self _readUntilHeaderCompleteWithCallback:^(AVIMWebSocket *self,  NSData *data) {
-        CFHTTPMessageAppendBytes(_receivedHTTPHeaders, (const UInt8 *)data.bytes, data.length);
+        CFHTTPMessageAppendBytes(self->_receivedHTTPHeaders, (const UInt8 *)data.bytes, data.length);
         
-        if (CFHTTPMessageIsHeaderComplete(_receivedHTTPHeaders)) {
-            AVIMFastLog(@"Finished reading headers %@", CFBridgingRelease(CFHTTPMessageCopyAllHeaderFields(_receivedHTTPHeaders)));
+        if (CFHTTPMessageIsHeaderComplete(self->_receivedHTTPHeaders)) {
+            AVIMFastLog(@"Finished reading headers %@", CFBridgingRelease(CFHTTPMessageCopyAllHeaderFields(self->_receivedHTTPHeaders)));
             [self _HTTPHeadersDidFinish];
         } else {
             [self _readHTTPHeader];
@@ -601,14 +599,8 @@ static __strong NSData *CRLFCRLF;
         
         [_outputStream setProperty:(__bridge id)kCFStreamSocketSecurityLevelNegotiatedSSL forKey:(__bridge id)kCFStreamPropertySocketSecurityLevel];
         
-        // If we're using pinned certs, don't validate the certificate chain
-        if ([_urlRequest AVIM_SSLPinnedCertificates].count) {
-            [SSLOptions setValue:@NO forKey:(__bridge id)kCFStreamSSLValidatesCertificateChain];
-        }
-        
         /*
          * NOTE: we (LeanCloud) disable the certificate validation explicitly for using IP access.
-         * Instead, we use SSL pinning to ensure data security. As an additional benifit, it can prevent the MITM attack, to some extent.
          */
         [SSLOptions setValue:@NO forKey:(__bridge id)kCFStreamSSLValidatesCertificateChain];
         
@@ -702,7 +694,7 @@ static __strong NSData *CRLFCRLF;
     // Need to shunt this on the _callbackQueue first to see if they received any messages 
     [self _performDelegateBlock:^{
         [self closeWithCode:AVIMStatusCodeProtocolError reason:message];
-        dispatch_async(_workQueue, ^{
+        dispatch_async(self->_workQueue, ^{
             [self closeConnection];
         });
     }];
@@ -716,7 +708,7 @@ static __strong NSData *CRLFCRLF;
             
             [self setReadyState:AVIMWebSocketStateClosed];
             
-            _failed = YES;
+            self->_failed = YES;
             
             [self _performDelegateBlock:^{
                 id <AVIMWebSocketDelegate> delegate = self.delegate;
@@ -725,7 +717,7 @@ static __strong NSData *CRLFCRLF;
                 }
             }];
 
-            _selfRetain = nil;
+            self->_selfRetain = nil;
 
             AVIMFastLog(@"Failing with error %@", error.localizedDescription);
             
@@ -781,7 +773,7 @@ static __strong NSData *CRLFCRLF;
 {
     // Need to pingpong this off _callbackQueue first to make sure messages happen in order
     [self _performDelegateBlock:^{
-        dispatch_async(_workQueue, ^{
+        dispatch_async(self->_workQueue, ^{
             [self _sendFrameWithOpcode:AVIMOpCodePong data:pingData];
         });
     }];
@@ -1064,7 +1056,7 @@ static const uint8_t AVIMPayloadLenMask   = 0x7F;
             [self _closeWithProtocolError:@"Client must receive unmasked data"];
         }
         
-        size_t extra_bytes_needed = header.masked ? sizeof(_currentReadMaskKey) : 0;
+        size_t extra_bytes_needed = header.masked ? sizeof(self->_currentReadMaskKey) : 0;
         
         if (header.payload_length == 126) {
             extra_bytes_needed += sizeof(uint16_t);
@@ -1096,7 +1088,7 @@ static const uint8_t AVIMPayloadLenMask   = 0x7F;
                 
                 
                 if (header.masked) {
-                    assert(mapped_size >= sizeof(_currentReadMaskOffset) + offset);
+                    assert(mapped_size >= sizeof(self->_currentReadMaskOffset) + offset);
                     memcpy(self->_currentReadMaskKey, ((uint8_t *)mapped_buffer) + offset, sizeof(self->_currentReadMaskKey));
                 }
                 
@@ -1109,12 +1101,12 @@ static const uint8_t AVIMPayloadLenMask   = 0x7F;
 - (void)_readFrameNew;
 {
     dispatch_async(_workQueue, ^{
-        [_currentFrameData setLength:0];
+        [self->_currentFrameData setLength:0];
         
-        _currentFrameOpcode = 0;
-        _currentFrameCount = 0;
-        _readOpCount = 0;
-        _currentStringScanPosition = 0;
+        self->_currentFrameOpcode = 0;
+        self->_currentFrameCount = 0;
+        self->_readOpCount = 0;
+        self->_currentStringScanPosition = 0;
         
         [self _readFrameContinue];
     });
@@ -1160,7 +1152,7 @@ static const uint8_t AVIMPayloadLenMask   = 0x7F;
             [self _performDelegateBlock:^{
                 id <AVIMWebSocketDelegate> delegate = self.delegate;
                 if (delegate && [delegate respondsToSelector:@selector(webSocket:didCloseWithCode:reason:wasClean:)]) {
-                    [delegate webSocket:self didCloseWithCode:_closeCode reason:_closeReason wasClean:YES];
+                    [delegate webSocket:self didCloseWithCode:self->_closeCode reason:self->_closeReason wasClean:YES];
                 }
             }];
         }
@@ -1436,133 +1428,10 @@ static const size_t AVIMFrameHeaderOverhead = 32;
     [self _writeData:frame];
 }
 
-- (BOOL)pinCertificate:(NSArray *)sslCerts forServerTrust:(SecTrustRef)secTrust {
-    if (!secTrust)
-        return NO;
-    
-    NSInteger numCerts = SecTrustGetCertificateCount(secTrust);
-    for (NSInteger i = 0; i < numCerts; i++) {
-        SecCertificateRef cert = SecTrustGetCertificateAtIndex(secTrust, i);
-        NSData *certData = CFBridgingRelease(SecCertificateCopyData(cert));
-        
-        for (id ref in sslCerts) {
-            SecCertificateRef trustedCert = (__bridge SecCertificateRef)ref;
-            NSData *trustedCertData = CFBridgingRelease(SecCertificateCopyData(trustedCert));
-            
-            if ([trustedCertData isEqualToData:certData]) {
-                return YES;
-            }
-        }
-    }
-    
-    return NO;
-}
-
-BOOL LCSecKeyIsEqual(SecKeyRef key1, SecKeyRef key2);
-SecKeyRef LCGetPublicKeyFromCertificate(SecCertificateRef cert);
-
-/*!
- * Convert certificates to public keys.
- * @param certs Certificate array, it should be an array of SecCertificateRef.
- * @return An array of public keys.
- */
-NS_INLINE
-NSArray *LCPublicKeysFromCerts(NSArray *certs) {
-    NSMutableArray *publicKeys = [NSMutableArray array];
-    
-    for (id cert in certs) {
-        SecKeyRef publicKey = LCGetPublicKeyFromCertificate((__bridge SecCertificateRef)cert);
-        
-        if (publicKey) {
-            [publicKeys addObject:(__bridge_transfer id)publicKey];
-        }
-    }
-    
-    return publicKeys;
-}
-
-- (BOOL)pinPublicKey:(NSArray *)sslCerts forServerTrust:(SecTrustRef)secTrust {
-    BOOL result = NO;
-    
-    if (!secTrust)
-        return result;
-    
-    SecPolicyRef policy = SecPolicyCreateBasicX509();
-    NSInteger numCerts = SecTrustGetCertificateCount(secTrust);
-    NSArray *pinnedPublicKeys = LCPublicKeysFromCerts(sslCerts);
-    
-    for (NSInteger i = 0; i < numCerts; i++) {
-        SecCertificateRef cert = SecTrustGetCertificateAtIndex(secTrust, i);
-        
-        SecCertificateRef certs[] = {cert};
-        CFArrayRef certificates = CFArrayCreate(NULL, (const void **)certs, 1, NULL);
-        
-        SecTrustRef trust;
-        
-        do {
-            if (SecTrustCreateWithCertificates(certificates, policy, &trust) != noErr) break;
-            if (SecTrustEvaluate(trust, NULL) != noErr) break;
-            
-            id publicKey = (__bridge_transfer id)SecTrustCopyPublicKey(trust);
-            
-            for (id pinnedPublicKey in pinnedPublicKeys) {
-                if (LCSecKeyIsEqual((__bridge SecKeyRef)pinnedPublicKey, (__bridge SecKeyRef)publicKey)) {
-                    result = YES;
-                    break;
-                }
-            }
-        } while (NO);
-        
-        if (certificates)
-            CFRelease(certificates);
-        
-        if (trust)
-            CFRelease(trust);
-        
-        if (result)
-            break;
-    }
-
-    if (policy)
-        CFRelease(policy);
-    
-    return result;
-}
-
 // MARK: - NSStreamDelegate
 
 - (void)stream:(NSStream *)aStream handleEvent:(NSStreamEvent)eventCode;
 {
-    if (_secure && _SSLPinningMode && !_pinnedCertFound && (eventCode == NSStreamEventHasBytesAvailable || eventCode == NSStreamEventHasSpaceAvailable)) {
-        NSArray *sslCerts = [_urlRequest AVIM_SSLPinnedCertificates];
-        
-        if (sslCerts) {
-            SecTrustRef secTrust = (__bridge SecTrustRef)[aStream propertyForKey:(__bridge id)kCFStreamPropertySSLPeerTrust];
-            
-            switch (_SSLPinningMode) {
-                case AVIMSSLPinningModeNone:
-                    break;
-                case AVIMSSLPinningModeCertificate:
-                    _pinnedCertFound = [self pinCertificate:sslCerts forServerTrust:secTrust];
-                    break;
-                case AVIMSSLPinningModePublicKey:
-                    _pinnedCertFound = [self pinPublicKey:sslCerts forServerTrust:secTrust];
-                    break;
-            }
-            
-            if (!_pinnedCertFound) {
-                [self _failWithError:[NSError errorWithDomain:AVIMWebSocketErrorDomain code:23556 userInfo:[NSDictionary dictionaryWithObject:[NSString stringWithFormat:@"Invalid server cert"] forKey:NSLocalizedDescriptionKey]]];
-                return;
-            }
-            
-            if (aStream == _outputStream && _pinnedCertFound) {
-                dispatch_async(_workQueue, ^{
-                    [self didConnect];
-                });
-            }
-        }
-    }
-
     dispatch_async(_workQueue, ^{
         switch (eventCode) {
             case NSStreamEventOpenCompleted: {
@@ -1570,11 +1439,9 @@ NSArray *LCPublicKeysFromCerts(NSArray *certs) {
                 if (self.readyState >= AVIMWebSocketStateClosing) {
                     return;
                 }
-                assert(_readBuffer);
+                assert(self->_readBuffer);
                 
-                // didConnect fires after certificate verification if we're using pinned certificates.
-                BOOL usingPinnedCerts = [[_urlRequest AVIM_SSLPinnedCertificates] count] > 0;
-                if ((!_secure || !usingPinnedCerts) && self.readyState == AVIMWebSocketStateConnecting && aStream == _inputStream) {
+                if (self.readyState == AVIMWebSocketStateConnecting && aStream == self->_inputStream) {
                     [self didConnect];
                 }
                 [self _pumpWriting];
@@ -1586,8 +1453,8 @@ NSArray *LCPublicKeysFromCerts(NSArray *certs) {
                 AVIMFastLog(@"NSStreamEventErrorOccurred %@ %@", aStream, [[aStream streamError] copy]);
                 /// TODO specify error better!
                 [self _failWithError:aStream.streamError];
-                _readBufferOffset = 0;
-                [_readBuffer setLength:0];
+                self->_readBufferOffset = 0;
+                [self->_readBuffer setLength:0];
                 break;
                 
             }
@@ -1598,14 +1465,14 @@ NSArray *LCPublicKeysFromCerts(NSArray *certs) {
                 if (aStream.streamError) {
                     [self _failWithError:aStream.streamError];
                 } else {
-                    dispatch_async(_workQueue, ^{
+                    dispatch_async(self->_workQueue, ^{
                         if (self.readyState != AVIMWebSocketStateClosed) {
                             [self setReadyState:AVIMWebSocketStateClosed];
-                            _selfRetain = nil;
+                            self->_selfRetain = nil;
                         }
                         
-                        if (!_sentClose && !_failed) {
-                            _sentClose = YES;
+                        if (!self->_sentClose && !self->_failed) {
+                            self->_sentClose = YES;
                             // If we get closed in this state it's probably not clean because we should be sending this when we send messages
                             [self _performDelegateBlock:^{
                                 id <AVIMWebSocketDelegate> delegate = self.delegate;
@@ -1625,13 +1492,13 @@ NSArray *LCPublicKeysFromCerts(NSArray *certs) {
                 const int bufferSize = 2048;
                 uint8_t buffer[bufferSize];
                 
-                while (_inputStream.hasBytesAvailable) {
-                    NSInteger bytes_read = [_inputStream read:buffer maxLength:bufferSize];
+                while (self->_inputStream.hasBytesAvailable) {
+                    NSInteger bytes_read = [self->_inputStream read:buffer maxLength:bufferSize];
                     
                     if (bytes_read > 0) {
-                        [_readBuffer appendBytes:buffer length:bytes_read];
+                        [self->_readBuffer appendBytes:buffer length:bytes_read];
                     } else if (bytes_read < 0) {
-                        [self _failWithError:_inputStream.streamError];
+                        [self _failWithError:self->_inputStream.streamError];
                     }
                     
                     if (bytes_read != bufferSize) {
@@ -1720,30 +1587,6 @@ NSArray *LCPublicKeysFromCerts(NSArray *certs) {
     if (_bufferedConsumers.count < _poolSize) {
         [_bufferedConsumers addObject:consumer];
     }
-}
-
-@end
-
-
-@implementation  NSURLRequest (CertificateAdditions)
-
-- (NSArray *)AVIM_SSLPinnedCertificates;
-{
-    return [NSURLProtocol propertyForKey:@"AVIM_SSLPinnedCertificates" inRequest:self];
-}
-
-@end
-
-@implementation  NSMutableURLRequest (CertificateAdditions)
-
-- (NSArray *)AVIM_SSLPinnedCertificates;
-{
-    return [NSURLProtocol propertyForKey:@"AVIM_SSLPinnedCertificates" inRequest:self];
-}
-
-- (void)setAVIM_SSLPinnedCertificates:(NSArray *)AVIM_SSLPinnedCertificates;
-{
-    [NSURLProtocol setProperty:AVIM_SSLPinnedCertificates forKey:@"AVIM_SSLPinnedCertificates" inRequest:self];
 }
 
 @end

@@ -147,7 +147,7 @@ static BOOL clientHasInstantiated = false;
     self->_clientId = ({
         if (!clientId || clientId.length > kClientIdLengthLimit || clientId.length == 0) {
             [NSException raise:NSInvalidArgumentException
-                        format:@"clientId invalid or length not in range [1 %lu].", kClientIdLengthLimit];
+                        format:@"clientId invalid or length not in range [1 %lu].", (unsigned long)kClientIdLengthLimit];
         }
         clientId.copy;
     });
@@ -372,7 +372,7 @@ static BOOL clientHasInstantiated = false;
                         sessionCommand.n = signature.nonce;
                     }
                     sessionCommand.deviceToken = client->_pushManager.deviceToken ?: AVUtils.deviceUUID;
-                    sessionCommand.ua = @"ios/" SDK_VERSION;
+                    sessionCommand.ua = USER_AGENT;
                     
                     LCIMProtobufCommandWrapper *commandWrapper = [LCIMProtobufCommandWrapper new];
                     commandWrapper.outCommand = outCommand;
@@ -445,29 +445,27 @@ static BOOL clientHasInstantiated = false;
         outCommand.appId = [AVOSCloud getApplicationId];
         outCommand.peerId = self->_clientId;
         outCommand.sessionMessage = sessionCommand;
+        sessionCommand.deviceToken = self->_pushManager.deviceToken ?: AVUtils.deviceUUID;
+        sessionCommand.ua = USER_AGENT;
         sessionCommand.r = true;
-        if (sessionToken) {
-            sessionCommand.st = sessionToken;
-        } else {
-            if (signature && signature.signature && signature.timestamp && signature.nonce) {
-                sessionCommand.s = signature.signature;
-                sessionCommand.t = signature.timestamp;
-                sessionCommand.n = signature.nonce;
-            }
-            if (self->_tag) {
-                sessionCommand.tag = self->_tag;
-            }
-            if (self->_sessionConfigBitmap) {
-                sessionCommand.configBitmap = self->_sessionConfigBitmap;
-            }
-            sessionCommand.deviceToken = self->_pushManager.deviceToken ?: AVUtils.deviceUUID;
-            sessionCommand.ua = @"ios" @"/" SDK_VERSION;
+        if (self->_tag) {
+            sessionCommand.tag = self->_tag;
+        }
+        if (self->_sessionConfigBitmap) {
+            sessionCommand.configBitmap = self->_sessionConfigBitmap;
         }
         if (self->_lastPatchTimestamp) {
             sessionCommand.lastPatchTime = self->_lastPatchTimestamp;
         }
         if (self->_lastUnreadTimestamp) {
             sessionCommand.lastUnreadNotifTime = self->_lastUnreadTimestamp;
+        }
+        if (sessionToken) {
+            sessionCommand.st = sessionToken;
+        } else if (signature && signature.signature && signature.timestamp && signature.nonce) {
+            sessionCommand.s = signature.signature;
+            sessionCommand.t = signature.timestamp;
+            sessionCommand.n = signature.nonce;
         }
         LCIMProtobufCommandWrapper *commandWrapper = [LCIMProtobufCommandWrapper new];
         commandWrapper.outCommand = outCommand;
@@ -1619,7 +1617,7 @@ static BOOL clientHasInstantiated = false;
     for (NSString *item in clientIds) {
         if (item.length > kClientIdLengthLimit || item.length == 0) {
             [self invokeInUserInteractQueue:^{
-                callback(nil, LCErrorInternal([NSString stringWithFormat:@"client id's length should in range [1 %lu].", kClientIdLengthLimit]));
+                callback(nil, LCErrorInternal([NSString stringWithFormat:@"client id's length should in range [1 %lu].", (unsigned long)kClientIdLengthLimit]));
             }];
             return;
         }
@@ -1874,7 +1872,7 @@ static BOOL clientHasInstantiated = false;
         NSUInteger clientsCountMax = 20;
         if (clients.count > clientsCountMax) {
             [self invokeInUserInteractQueue:^{
-                callback(nil, LCErrorInternal([NSString stringWithFormat:@"clients count beyond max %lu", clientsCountMax]));
+                callback(nil, LCErrorInternal([NSString stringWithFormat:@"clients count beyond max %lu", (unsigned long)clientsCountMax]));
             }];
             return;
         }
@@ -2074,7 +2072,10 @@ static BOOL clientHasInstantiated = false;
     AVIMClient.sessionProtocolOptions[kAVIMUserOptionUseUnread] = @(enabled);
 }
 
-/// deprecated
+// MARK: Deprecated
+
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wdeprecated-implementations"
 + (void)setUserOptions:(NSDictionary *)userOptions
 {
     if (clientHasInstantiated) {
@@ -2087,5 +2088,6 @@ static BOOL clientHasInstantiated = false;
     }
     [AVIMClient.sessionProtocolOptions addEntriesFromDictionary:userOptions];
 }
+#pragma clang diagnostic pop
 
 @end

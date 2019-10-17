@@ -14,7 +14,7 @@
             buildForAnalyzing = "YES">
             <BuildableReference
                BuildableIdentifier = "primary"
-               BlueprintIdentifier = "838CE3361EC980DE00B24F5B"
+               BlueprintIdentifier = "D305F7E02355A02A00222EBC"
                BuildableName = "AVOSCloudLiveQuery.framework"
                BlueprintName = "AVOSCloudLiveQuery-macOS"
                ReferencedContainer = "container:AVOS.xcodeproj">
@@ -59,7 +59,7 @@
       <MacroExpansion>
          <BuildableReference
             BuildableIdentifier = "primary"
-            BlueprintIdentifier = "838CE3361EC980DE00B24F5B"
+            BlueprintIdentifier = "D305F7E02355A02A00222EBC"
             BuildableName = "AVOSCloudLiveQuery.framework"
             BlueprintName = "AVOSCloudLiveQuery-macOS"
             ReferencedContainer = "container:AVOS.xcodeproj">
