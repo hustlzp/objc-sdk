@@ -1,6 +1,6 @@
 Pod::Spec.new do |s|
   s.name     = 'AVOSCloud'
-  s.version  = '12.0.2.100'
+  s.version  = '12.0.3.100'
   s.homepage = 'https://leancloud.cn/'
   s.summary  = 'LeanCloud Objective-C SDK'
   s.authors  = 'LeanCloud'
@@ -11,7 +11,7 @@ Pod::Spec.new do |s|
   s.swift_version = '5.0'
 
   s.ios.deployment_target     = '8.0'
-  s.osx.deployment_target     = '10.9'
+  s.osx.deployment_target     = '10.10'
   s.tvos.deployment_target    = '9.0'
   s.watchos.deployment_target = '2.0'
 
@@ -71,7 +71,7 @@ Pod::Spec.new do |s|
   s.resources =
     'AVOS/AVOSCloud/AVOSCloud_Art.inc'
 
-  s.dependency 'PromiseKit', "~> 6.11.0"
+  s.dependency 'PromiseKit', "~> 6.12.0"
   
   s.library =
     'sqlite3'
