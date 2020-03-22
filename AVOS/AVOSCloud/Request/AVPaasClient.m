@@ -114,12 +114,7 @@ NSString *const LCHeaderFieldNameProduction = @"X-LC-Prod";
 
 @property (nonatomic, strong) LCURLSessionManager *sessionManager;
 
-// The client is singleton, so the queue doesn't need release
-#if OS_OBJECT_USE_OBJC
 @property (nonatomic, strong) dispatch_queue_t completionQueue;
-#else
-@property (nonatomic, assign) dispatch_queue_t completionQueue;
-#endif
 
 @property (nonatomic, strong) NSMutableSet *runningArchivedRequests;
 
@@ -166,6 +161,7 @@ NSString *const LCHeaderFieldNameProduction = @"X-LC-Prod";
 
             manager;
         });
+        _lock = [[NSLock alloc] init];
     }
 
     return self;
@@ -602,17 +598,17 @@ NSString *const LCHeaderFieldNameProduction = @"X-LC-Prod";
         if (error) {
             
             NSError *callbackError = nil;
-            if ([NSDictionary lc__checkingType:responseObject]) {
+            if ([NSDictionary _lc_is_type_of:responseObject]) {
                 
                 NSMutableDictionary *userInfo = ((NSDictionary *)responseObject).mutableCopy;
                 
                 // decoding 'code'
-                NSNumber *code = [NSNumber lc__decodingDictionary:userInfo key:kLC_code];
+                NSNumber *code = [NSNumber _lc_decoding:userInfo key:kLC_code];
                 
                 if (code) {
                     
                     // decoding 'error'
-                    NSString *reason = [NSString lc__decodingDictionary:userInfo key:kLC_error];
+                    NSString *reason = [NSString _lc_decoding:userInfo key:kLC_error];
                     
                     [userInfo removeObjectsForKeys:@[kLC_code, kLC_error]];
                     
@@ -678,7 +674,9 @@ NSString *const LCHeaderFieldNameProduction = @"X-LC-Prod";
             dispatch_semaphore_signal(semaphore);
     }];
 
+    [self.lock lock];
     [self.requestTable setObject:dataTask forKey:request.URL.absoluteString];
+    [self.lock unlock];
 
     [dataTask resume];
 
