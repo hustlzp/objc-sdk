@@ -22,6 +22,8 @@
 
 @implementation AVCloud (AVCloud_Cache)
 
+// MARK: - Public
+
 + (void)rpcFunctionInBackground:(NSString *)function withParameters:(nullable id)parameters cachePolicy:(AVCachePolicy)cachePolicy maxCacheAge:(NSTimeInterval)maxCacheAge block:(AVIdResultWithCacheFlagBlock)block
 {   
     switch (cachePolicy) {
@@ -70,6 +72,22 @@
     }
 }
 
++ (void)clearRpcFunctionCache:(nonnull NSString *)function withParameters:(nullable id)parameters {
+    NSDictionary *serializedParameters = nil;
+    
+    if (parameters) {
+        serializedParameters = [AVObjectUtils dictionaryFromObject:parameters topObject:YES];
+    }
+    
+    NSString *path = [NSString stringWithFormat:@"call/%@", function];
+    NSURLRequest *request = [[AVPaasClient sharedInstance] requestWithPath:path method:@"POST" headers:nil parameters:serializedParameters];
+    NSString *key = [AVCloud generateCacheKeyWithRequest:request parameters:parameters];
+
+    [[AVCacheManager sharedInstance] clearCacheForKey:key];
+}
+
+// MARK: - Private
+
 + (void)rpcFunctionFromNetwork:(NSString *)function withParameters:(nullable id)parameters cachePolicy:(AVCachePolicy)cachePolicy block:(AVIdResultWithCacheFlagBlock)block
 {
     NSDictionary *serializedParameters = nil;
@@ -92,7 +110,6 @@
          }
      }
      failure:^(NSHTTPURLResponse *response, id responseObject, NSError *inError) {
-         
          [AVUtils callIdResultWithCacheFlagBlock:block object:nil fromCache:false error:inError];
      }];
 }
