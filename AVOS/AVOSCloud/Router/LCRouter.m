@@ -7,13 +7,14 @@
 //
 
 #import "LCRouter_Internal.h"
+#import "AVApplication_Internal.h"
 #import "AVUtils.h"
 #import "AVErrorUtils.h"
 #import "AVPaasClient.h"
 #import "AVPersistenceUtils.h"
 
-RouterCacheKey RouterCacheKeyApp = @"RouterCacheDataApp";
-RouterCacheKey RouterCacheKeyRTM = @"RouterCacheDataRTM";
+RouterCacheKey const RouterCacheKeyApp = @"RouterCacheDataApp";
+RouterCacheKey const RouterCacheKeyRTM = @"RouterCacheDataRTM";
 static RouterCacheKey RouterCacheKeyData = @"data";
 static RouterCacheKey RouterCacheKeyTimestamp = @"timestamp";
 
@@ -21,17 +22,7 @@ static NSString *serverURLString;
 /// { 'module key' : 'URL' }
 static NSMutableDictionary<NSString *, NSString *> *customAppServerTable;
 
-@implementation LCRouter {
-    /// { 'app ID' : 'app router data tuple' }
-    NSMutableDictionary<NSString *, NSDictionary *> *_appRouterMap;
-    /// { 'app ID' : 'RTM router data tuple' }
-    NSMutableDictionary<NSString *, NSDictionary *> *_RTMRouterMap;
-    
-    NSLock *_lock;
-    NSDictionary<NSString *, NSString *> *_keyToModule;
-    /// { 'app ID' : 'callback array' }
-    NSMutableDictionary<NSString *, NSMutableArray<void (^)(NSDictionary *, NSError *)> *> *_RTMRouterCallbacksMap;
-}
+@implementation LCRouter
 
 + (NSString *)serverURLString {
     return serverURLString;
@@ -65,7 +56,7 @@ static NSMutableDictionary<NSString *, NSString *> *customAppServerTable;
                 if ([data length]) {
                     NSError *error = nil;
                     NSMutableDictionary *dictionary = [NSJSONSerialization JSONObjectWithData:data options:NSJSONReadingMutableContainers error:&error];
-                    if (error || ![NSMutableDictionary _lc_is_type_of:dictionary]) {
+                    if (error || ![NSMutableDictionary _lc_isTypeOf:dictionary]) {
                         if (!error) { error = LCErrorInternal([NSString stringWithFormat:@"file: %@ is invalid.", filePath]); }
                         AVLoggerError(AVLoggerDomainDefault, @"%@", error);
                     } else {
@@ -170,6 +161,23 @@ static void cachingRouterData(NSDictionary *routerDataMap, RouterCacheKey key)
     }
 }
 
+- (void)cleanCacheWithApplication:(AVApplication *)application
+                              key:(RouterCacheKey)key
+                            error:(NSError * __autoreleasing *)error
+{
+    NSString *appID = [application identifierThrowException];
+    if (key == RouterCacheKeyApp) {
+        [self->_lock lock];
+        [self->_appRouterMap removeObjectForKey:appID];
+        [self->_lock unlock];
+    } else if (key == RouterCacheKeyRTM) {
+        [self->_lock lock];
+        [self->_RTMRouterMap removeObjectForKey:appID];
+        [self->_lock unlock];
+    }
+    [self cleanCacheWithKey:key error:error];
+}
+
 // MARK: - App Router
 
 - (void)getAppRouterDataWithAppID:(NSString *)appID callback:(void (^)(NSDictionary *dataDictionary, NSError *error))callback
@@ -180,7 +188,7 @@ static void cachingRouterData(NSDictionary *routerDataMap, RouterCacheKey key)
             callback(nil, error);
         } else {
             NSDictionary *dictionary = (NSDictionary *)object;
-            if ([NSDictionary _lc_is_type_of:dictionary]) {
+            if ([NSDictionary _lc_isTypeOf:dictionary]) {
                 callback(dictionary, nil);
             } else {
                 callback(nil, LCErrorInternal(@"response data invalid."));
@@ -287,11 +295,13 @@ static void cachingRouterData(NSDictionary *routerDataMap, RouterCacheKey key)
             [LCRouter appDomainForAppID:appID]];
 }
 
-/// for compatibility, keep it.
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wdeprecated-implementations"
 - (NSString *)URLStringForPath:(NSString *)path
 {
     return [self appURLForPath:path appID:[AVOSCloud getApplicationId]];
 }
+#pragma clang diagnostic pop
 
 // MARK: - RTM Router
 
@@ -305,26 +315,24 @@ static void cachingRouterData(NSDictionary *routerDataMap, RouterCacheKey key)
 {
     NSParameterAssert(appID);
     NSParameterAssert(RTMRouterURL);
-    NSMutableDictionary *parameters = ({
-        NSMutableDictionary *parameters = [[NSMutableDictionary alloc] init];
-        parameters[@"appId"] = appID;
-        parameters[@"secure"] = @"1";
-        /* Back door for user to connect to puppet environment. */
-        if (getenv("LC_IM_PUPPET_ENABLED") && getenv("SIMULATOR_UDID")) {
-            parameters[@"debug"] = @"true";
-        }
-        parameters;
-    });
-    [[AVPaasClient sharedInstance] getObject:RTMRouterURL withParameters:parameters block:^(id _Nullable object, NSError * _Nullable error) {
-        if (error) {
-            callback(nil, error);
+    AVPaasClient *paasClient = [AVPaasClient sharedInstance];
+    NSURLRequest *request = [paasClient requestWithPath:RTMRouterURL
+                                                 method:@"GET"
+                                                headers:nil
+                                             parameters:@{
+                                                 @"appId": appID,
+                                                 @"secure": @"1",
+                                             }];
+    [paasClient performRequest:request success:^(NSHTTPURLResponse *response, id responseObject) {
+        if ([NSDictionary _lc_isTypeOf:responseObject]) {
+            callback(responseObject, nil);
         } else {
-            if ([NSDictionary _lc_is_type_of:object]) {
-                callback(object, nil);
-            } else {
-                callback(nil, LCErrorInternal(@"response data invalid."));
-            }
+            callback(nil, LCError(AVErrorInternalErrorCodeMalformedData,
+                                  @"Response data is malformed.",
+                                  @{ @"data": (responseObject ?: @"nil") }));
         }
+    } failure:^(NSHTTPURLResponse *response, id responseObject, NSError *error) {
+        callback(nil, error);
     }];
 }
 

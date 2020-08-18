@@ -1,6 +1,6 @@
 Pod::Spec.new do |s|
   s.name     = 'AVOSCloud'
-  s.version  = '12.1.3.100'
+  s.version  = '12.3.0.100'
   s.homepage = 'https://leancloud.cn/'
   s.summary  = 'LeanCloud Objective-C SDK'
   s.authors  = 'LeanCloud'
@@ -56,17 +56,7 @@ Pod::Spec.new do |s|
     'AVOS/AVOSCloud/AVAvailability.h'
 
   s.watchos.exclude_files =
-    'AVOS/AVOSCloud/Analytics/AVAnalytics.h',
-    'AVOS/AVOSCloud/Analytics/AVAnalyticsImpl.h',
-    'AVOS/AVOSCloud/Analytics/AVAnalyticsSession.h',
-    'AVOS/AVOSCloud/Utils/AVReachability.h',
-    'AVOS/AVOSCloud/Analytics/AVAnalytics_Internal.h',
-    'AVOS/AVOSCloud/Analytics/AVAnalyticsActivity.h',
-    'AVOS/AVOSCloud/Analytics/AVAnalyticsSession.m',
-    'AVOS/AVOSCloud/Analytics/AVAnalyticsImpl.m',
-    'AVOS/AVOSCloud/Analytics/AVAnalyticsActivity.m',
-    'AVOS/AVOSCloud/Utils/AVReachability.m',
-    'AVOS/AVOSCloud/Analytics/AVAnalytics.m'
+    'AVOS/AVOSCloud/Analytics/*.{h,m}'
 
   s.resources =
     'AVOS/AVOSCloud/AVOSCloud_Art.inc'

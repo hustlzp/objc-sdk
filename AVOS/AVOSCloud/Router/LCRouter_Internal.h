@@ -39,9 +39,19 @@ static RouterKey RouterKeyRTMGroupUrl = @"groupUrl";
 static RouterKey RouterKeyRTMSecondary = @"secondary";
 static RouterKey RouterKeyRTMServer = @"server";
 
+@class AVApplication;
+
 @interface LCRouter ()
 
-@property (atomic, assign) BOOL isUpdatingAppRouter;
+@property (atomic) BOOL isUpdatingAppRouter;
+@property (nonatomic) NSLock *lock;
+@property (nonatomic, readonly) NSDictionary<NSString *, NSString *> *keyToModule;
+/// { 'app ID' : 'app router data tuple' }
+@property (nonatomic, readonly) NSMutableDictionary<NSString *, NSDictionary *> *appRouterMap;
+/// { 'app ID' : 'RTM router data tuple' }
+@property (nonatomic, readonly) NSMutableDictionary<NSString *, NSDictionary *> *RTMRouterMap;
+/// { 'app ID' : 'callback array' }
+@property (nonatomic, readonly) NSMutableDictionary<NSString *, NSMutableArray<void (^)(NSDictionary *, NSError *)> *> *RTMRouterCallbacksMap;
 
 /// internal
 
@@ -58,6 +68,10 @@ static RouterKey RouterKeyRTMServer = @"server";
 - (NSString *)batchPathForPath:(NSString *)path;
 
 + (void)customAppServerURL:(NSString *)URLString key:(RouterKey)key;
+
+- (void)cleanCacheWithApplication:(AVApplication *)application
+                              key:(RouterCacheKey)key
+                            error:(NSError * __autoreleasing *)error;
 
 /// unit test
 

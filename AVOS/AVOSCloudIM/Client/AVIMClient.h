@@ -19,7 +19,11 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
+/// IM Client.
 @interface AVIMClient : NSObject
+
++ (instancetype)new NS_UNAVAILABLE;
+- (instancetype)init NS_UNAVAILABLE;
 
 /*!
  Set what server will issues for offline messages when client did login.
@@ -30,115 +34,92 @@ NS_ASSUME_NONNULL_BEGIN
  */
 + (void)setUnreadNotificationEnabled:(BOOL)enabled;
 
-/*!
- * 设置实时通信的超时时间，默认 30 秒。
- * @param seconds 超时时间，单位是秒。
- */
+/// Set up connecting timeout, default is `60` seconds.
+/// @param seconds The interval of timeout.
 + (void)setTimeoutIntervalInSeconds:(NSTimeInterval)seconds;
 
-/**
- No thread-safe for getter & setter. recommend setting after instantiation.
- */
-@property (nonatomic, weak, nullable) id <AVIMClientDelegate> delegate;
+/// The delegate for `AVIMClientDelegate`.
+@property (nonatomic, weak, nullable) id<AVIMClientDelegate> delegate;
 
-/*
- No thread-safe for getter & setter. recommend setting after instantiation.
- */
-@property (nonatomic, weak, nullable) id <AVIMSignatureDataSource> signatureDataSource;
+/// The delegate for `AVIMSignatureDataSource`.
+@property (nonatomic, weak, nullable) id<AVIMSignatureDataSource> signatureDataSource;
 
-/**
- The ID of this Client.
- */
-@property (nonatomic, strong, readonly, nonnull) NSString *clientId;
+/// The ID of this client.
+@property (nonatomic, readonly) NSString *clientId;
 
-/**
- The `AVUser` of this Client.
- */
-@property (nonatomic, strong, readonly, nullable) AVUser *user;
+/// The `AVUser` of this client.
+@property (nonatomic, readonly, nullable) AVUser *user;
 
-/**
- The Tag of this Client.
- */
-@property (nonatomic, strong, readonly, nullable) NSString *tag;
+/// The tag of this client.
+@property (nonatomic, readonly, nullable) NSString *tag;
 
-/**
- 控制是否打开历史消息查询本地缓存的功能, 默认开启
- */
-@property (nonatomic, assign) BOOL messageQueryCacheEnabled;
+/// The control switch for message query cache, default is `true`.
+@property (nonatomic) BOOL messageQueryCacheEnabled;
 
-+ (instancetype)new NS_UNAVAILABLE;
-- (instancetype)init NS_UNAVAILABLE;
+/// Initializing with an ID.
+/// @param clientId The length of the ID should in range `[1, 64]`.
+- (nullable instancetype)initWithClientId:(NSString *)clientId LC_WARN_UNUSED_RESULT;
 
-/**
- Initialization method.
- 
- @note `clientId`'s length should in range [1, 64], and all characters must be letters, digits, or the underscore.
- 
- @param clientId Identifie of this Client.
- @return Instance.
- */
-- (instancetype)initWithClientId:(NSString *)clientId LC_WARN_UNUSED_RESULT;
+/// Initializing with an ID.
+/// @param clientId The length of the ID should in range `[1, 64]`.
+/// @param error Throws exception when error occurred.
+- (nullable instancetype)initWithClientId:(NSString *)clientId
+                                    error:(NSError * __autoreleasing *)error LC_WARN_UNUSED_RESULT;
 
-/**
- Initialization method.
- 
- @note `clientId`'s length should in range [1, 64], and all characters must be letters, digits, or the underscore.
- @note `tag` should not use @"default".
+/// Initializing with an ID and a tag.
+/// @param clientId The length of the ID should in range `[1, 64]`.
+/// @param tag Using a tag to specify the context, `@"default"` is reserved.
+- (nullable instancetype)initWithClientId:(NSString *)clientId
+                                      tag:(NSString * _Nullable)tag LC_WARN_UNUSED_RESULT;
 
- @param clientId Identifie of this Client.
- @param tag Set it to implement only one client online.
- @return Instance.
- */
-- (instancetype)initWithClientId:(NSString *)clientId tag:(NSString * _Nullable)tag LC_WARN_UNUSED_RESULT;
+/// Initializing with an ID and a tag.
+/// @param clientId The length of the ID should in range `[1, 64]`.
+/// @param tag Using a tag to specify the context, `@"default"` is reserved.
+/// @param error Throws exception when error occurred.
+- (nullable instancetype)initWithClientId:(NSString *)clientId
+                                      tag:(NSString * _Nullable)tag
+                                    error:(NSError * __autoreleasing *)error LC_WARN_UNUSED_RESULT;
 
-/**
- Initialization method.
+/// Initializing with an `AVUser`.
+/// @param user The user should have logged in.
+- (nullable instancetype)initWithUser:(AVUser *)user LC_WARN_UNUSED_RESULT;
 
- @param user The `AVUser` of this Client.
- @return Instance.
- */
-- (instancetype)initWithUser:(AVUser *)user LC_WARN_UNUSED_RESULT;
+/// Initializing with an `AVUser`.
+/// @param user The user should have logged in.
+/// @param error Throws exception when error occurred.
+- (nullable instancetype)initWithUser:(AVUser *)user
+                                error:(NSError * __autoreleasing *)error LC_WARN_UNUSED_RESULT;
 
-/**
- Initialization method.
- 
- @note `tag` should not use @"default".
+/// Initializing with an `AVUser` and a tag.
+/// @param user The user should have logged in.
+/// @param tag Using a tag to specify the context, `@"default"` is reserved.
+- (nullable instancetype)initWithUser:(AVUser *)user
+                                  tag:(NSString * _Nullable)tag LC_WARN_UNUSED_RESULT;
 
- @param user The `AVUser` of this Client.
- @param tag Set it to implement only one client online.
- @return Instance.
- */
-- (instancetype)initWithUser:(AVUser *)user tag:(NSString * _Nullable)tag LC_WARN_UNUSED_RESULT;
+/// Initializing with an `AVUser` and a tag.
+/// @param user The user should have logged in.
+/// @param tag Using a tag to specify the context, `@"default"` is reserved.
+/// @param error Throws exception when error occurred.
+- (nullable instancetype)initWithUser:(AVUser *)user
+                                  tag:(NSString * _Nullable)tag
+                                error:(NSError * __autoreleasing *)error LC_WARN_UNUSED_RESULT;
 
-/**
- The Status of this Client.
- */
-- (AVIMClientStatus)status LC_WARN_UNUSED_RESULT;
+/// The current status of this client, see `AVIMClientStatus`.
+- (AVIMClientStatus)status;
 
-/**
- Start a Session with Server.
- It is similar to Login.
- 
- @param callback Result Callback.
- */
+/// Open this client before using instant messaging service,
+/// this action use `AVIMClientOpenOptionForceOpen` as default open option.
+/// @param callback The result callback.
 - (void)openWithCallback:(void (^)(BOOL succeeded, NSError * _Nullable error))callback;
 
-/**
- Start a Session with Server.
- It is similar to Login.
- 
- @param openOption See more: `AVIMClientOpenOption`.
- @param callback Result Callback.
- */
+/// Open this client before using instant messaging service
+/// @param openOption See `AVIMClientOpenOption`.
+/// @param callback The result callback.
 - (void)openWithOption:(AVIMClientOpenOption)openOption
               callback:(void (^)(BOOL succeeded, NSError * _Nullable error))callback;
 
-/**
- End a Session with Server.
- It is similar to Logout.
- 
- @param callback Result Callback.
- */
+/// Close this client.
+/// @param callback The result callback.
 - (void)closeWithCallback:(void (^)(BOOL succeeded, NSError * _Nullable error))callback;
 
 /*!
@@ -270,14 +251,12 @@ NS_ASSUME_NONNULL_BEGIN
 
 @end
 
-@interface AVIMClient (deprecated)
+// MARK: Deprecated
 
-/*!
- * 设置用户选项。
- * 该接口用于控制 AVIMClient 的一些细节行为。
- * @param userOptions 用户选项。
- */
-+ (void)setUserOptions:(NSDictionary *)userOptions __deprecated_msg("deprecated. Do not use it any more.");
+@interface AVIMClient (Deprecated)
+
++ (void)setUserOptions:(NSDictionary *)userOptions
+__deprecated_msg("Deprecated, DO NOT use it any more.");
 
 @end
 

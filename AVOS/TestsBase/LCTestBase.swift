@@ -10,6 +10,16 @@ import XCTest
 
 class LCTestBase: XCTestCase {
     
+    static let timeout: TimeInterval = 60
+    
+    var uuid: String {
+        return UUID().uuidString.replacingOccurrences(of: "-", with: "")
+    }
+    
+    static var uuid: String {
+        return UUID().uuidString.replacingOccurrences(of: "-", with: "")
+    }
+    
     override class func setUp() {
         super.setUp()
         
@@ -36,7 +46,7 @@ class LCTestBase: XCTestCase {
         } else {
             let testApp: TestApp = .ChinaNorth
             switch testApp {
-            case .ChinaNorth, .ChinaEast:
+            case .ChinaNorth, .ChinaEast, .USOld:
                 AVOSCloud.setApplicationId(
                     testApp.appInfo.id,
                     clientKey: testApp.appInfo.key,
@@ -57,6 +67,53 @@ class LCTestBase: XCTestCase {
 
 extension LCTestBase {
     
+    func expecting(
+        description: String? = nil,
+        count expectedFulfillmentCount: Int = 1,
+        testcase: (XCTestExpectation) -> Void)
+    {
+        let exp = self.expectation(description: description ?? "default expectation")
+        exp.expectedFulfillmentCount = expectedFulfillmentCount
+        self.expecting(
+            timeout: LCTestBase.timeout,
+            expectation: { exp },
+            testcase: testcase)
+    }
+    
+    func expecting(
+        expectation: @escaping () -> XCTestExpectation,
+        testcase: (XCTestExpectation) -> Void)
+    {
+        self.expecting(
+            timeout: LCTestBase.timeout,
+            expectation: expectation,
+            testcase: testcase)
+    }
+    
+    func expecting(
+        timeout: TimeInterval,
+        expectation: () -> XCTestExpectation,
+        testcase: (XCTestExpectation) -> Void)
+    {
+        self.multiExpecting(
+            timeout: timeout,
+            expectations: { [expectation()] },
+            testcase: { testcase($0[0]) })
+    }
+    
+    func multiExpecting(
+        timeout: TimeInterval = LCTestBase.timeout,
+        expectations: (() -> [XCTestExpectation]),
+        testcase: ([XCTestExpectation]) -> Void)
+    {
+        let exps = expectations()
+        testcase(exps)
+        wait(for: exps, timeout: timeout)
+    }
+}
+
+extension LCTestBase {
+    
     var isServerTesting: Bool {
         return LCTestEnvironment.sharedInstance().isServerTesting
     }
@@ -65,6 +122,7 @@ extension LCTestBase {
         case ChinaNorth
         case ChinaEast
         case US
+        case USOld
         var appInfo: (id: String, key: String, serverURL: String) {
             switch self {
             case .ChinaNorth:
@@ -76,9 +134,13 @@ extension LCTestBase {
                         key: "T3TEAIcL8Ls5XGPsGz41B1bz",
                         serverURL: "https://skhivsqi.lc-cn-e1-shared.com")
             case .US:
-                return (id: "eX7urCufwLd6X5mHxt7V12nL-MdYXbMMI",
-                        key: "PrmzHPnRXjXezS54KryuHMG6",
+                return (id: "jenSt9nvWtuJtmurdE28eg5M-MdYXbMMI",
+                        key: "8VLPsDlskJi8KsKppED4xKS0",
                         serverURL: "")
+            case .USOld:
+                return (id: "kknqydxqd9wdq4cboy1dvvug5ha0ce3i2mrerrdrmr6pla1p",
+                        key: "fate582pwsfh97s9o99nw91a152i7ndm9tsy866e6wpezth4",
+                        serverURL: "https://beta-us.leancloud.cn")
             }
         }
     }

@@ -12,8 +12,6 @@ import XCTest
 class LCIMTestBase: LCTestBase {
     
     override class func setUp() {
-        LCRouter.sharedInstance().cleanCache(withKey: .app, error: nil)
-        LCRouter.sharedInstance().cleanCache(withKey: .RTM, error: nil)
         super.setUp()
         /// custom RTM server URL
         if let RTMServerURL: String = LCTestEnvironment.sharedInstance().url_RTMServer {
@@ -57,7 +55,7 @@ extension LCIMTestBase {
         openOption: AVIMClientOpenOption = .forceOpen
         ) -> AVIMClient?
     {
-        var client: AVIMClient! = AVIMClient(clientId: clientId, tag: tag, installation: installation)
+        var client: AVIMClient! = try! AVIMClient(clientId: clientId, tag: tag, installation: installation)
         if let delegate: AVIMClientDelegate = delegate {
             client.delegate = delegate
         }
@@ -97,6 +95,10 @@ extension LCIMTestBase {
 }
 
 class AVIMClientDelegateWrapper: NSObject, AVIMClientDelegate {
+    
+    func imClientPaused(_ imClient: AVIMClient, error: Error?) {
+        
+    }
     
     var pausedClosure: ((AVIMClient) -> Void)?
     func imClientPaused(_ imClient: AVIMClient) {

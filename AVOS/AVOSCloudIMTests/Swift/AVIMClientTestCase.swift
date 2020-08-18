@@ -13,7 +13,7 @@ class AVIMClientTestCase: LCIMTestBase {
     // MARK: - Server Testing
     
     func tests_session_open_close() {
-        
+        LCRouter.sharedInstance().cleanCache(with: .default(), key: .RTM, error: nil)
         var client: AVIMClient! = AVIMClient(clientId: String(#function[..<#function.firstIndex(of: "(")!]))
         let delegate: AVIMClientDelegateWrapper = AVIMClientDelegateWrapper()
         client.delegate = delegate
@@ -48,8 +48,8 @@ class AVIMClientTestCase: LCIMTestBase {
         
         let delegate1 = AVIMClientDelegateWrapper()
         var client1: AVIMClient! = {
-            let client: AVIMClient  = AVIMClient(clientId: clientId, tag: tag, installation: AVInstallation())
-            client.pushManager.installation.setDeviceTokenHexString(UUID().uuidString, teamId: "LeanCloud")
+            let client: AVIMClient = try! AVIMClient(clientId: clientId, tag: tag, installation: AVInstallation())
+            client.installation.setDeviceTokenHexString(UUID().uuidString, teamId: "LeanCloud")
             client.delegate = delegate1
             return client
         }()
@@ -66,9 +66,13 @@ class AVIMClientTestCase: LCIMTestBase {
         
         if client1 != nil {
             
+            LCRTMConnectionManager.shared().liveQueryRegistry.removeAllObjects()
+            LCRTMConnectionManager.shared().imProtobuf1Registry.removeAllObjects()
+            LCRTMConnectionManager.shared().imProtobuf3Registry.removeAllObjects()
+            
             var client2: AVIMClient! = {
-                let client: AVIMClient  = AVIMClient(clientId: clientId, tag: tag, installation: AVInstallation())
-                client.pushManager.installation.setDeviceTokenHexString(UUID().uuidString, teamId: "LeanCloud")
+                let client: AVIMClient = try! AVIMClient(clientId: clientId, tag: tag, installation: AVInstallation())
+                client.installation.setDeviceTokenHexString(UUID().uuidString, teamId: "LeanCloud")
                 return client
             }()
             
@@ -194,7 +198,6 @@ class AVIMClientTestCase: LCIMTestBase {
                 XCTAssertNotNil(conv)
                 XCTAssertNil(error)
                 XCTAssertNotNil(conv?.conversationId)
-                XCTAssertNotNil(conv?.createAt)
                 XCTAssertNotNil(conv?.createdAt)
             })
         }, failure: { XCTFail("timeout") })
@@ -207,7 +210,6 @@ class AVIMClientTestCase: LCIMTestBase {
                 XCTAssertNotNil(conv)
                 XCTAssertNil(error)
                 XCTAssertNotNil(conv?.conversationId)
-                XCTAssertNotNil(conv?.createAt)
                 XCTAssertNotNil(conv?.createdAt)
             })
         }, failure: { XCTFail("timeout") })
@@ -221,7 +223,6 @@ class AVIMClientTestCase: LCIMTestBase {
                 XCTAssertNotNil(conv)
                 XCTAssertNil(error)
                 XCTAssertNotNil(conv?.conversationId)
-                XCTAssertNotNil(conv?.createAt)
                 XCTAssertNotNil(conv?.createdAt)
                 XCTAssertEqual(conv?.temporaryTTL, UInt(temporaryTTL))
             })
@@ -314,37 +315,32 @@ class AVIMClientTestCase: LCIMTestBase {
         
         RunLoopSemaphore.wait(async: { (semaphore: RunLoopSemaphore) in
             semaphore.increment()
-            client.pushManager.saveInstallation(withAddingClientId: true, callback: { (succeeded: Bool, error: Error?) in
+            client.installation.addUniqueObject(client.clientId, forKey: "channels")
+            client.installation.saveInBackground { (succeeded: Bool, error: Error?) in
                 semaphore.decrement()
                 XCTAssertTrue(Thread.isMainThread)
                 XCTAssertTrue(succeeded)
                 XCTAssertNil(error)
-            })
+            }
         }, failure: { XCTFail("timeout") })
         
         RunLoopSemaphore.wait(async: { (semaphore: RunLoopSemaphore) in
             semaphore.increment()
-            client.pushManager.saveInstallation(withAddingClientId: false, callback: { (succeeded: Bool, error: Error?) in
+            client.installation.removeObjects(in: [client.clientId], forKey: "channels")
+            client.installation.saveInBackground { (succeeded: Bool, error: Error?) in
                 semaphore.decrement()
                 XCTAssertTrue(Thread.isMainThread)
                 XCTAssertTrue(succeeded)
                 XCTAssertNil(error)
-            })
-        }, failure: { XCTFail("timeout") })
-        
-        RunLoopSemaphore.wait(async: { (semaphore: RunLoopSemaphore) in
-            semaphore.increment()
-            client.addOperation(toInternalSerialQueue: { (_) in
-                client.pushManager.uploadingDeviceToken(false, callback: { (error: Error?) in
-                    semaphore.decrement()
-                    XCTAssertNil(error)
-                })
-            })
+            }
         }, failure: { XCTFail("timeout") })
     }
     
     func test_goaway() {
-        AVOSCloudIM.defaultOptions().rtmServer = "wss://rtm51.leancloud.cn";
+        AVOSCloudIM.defaultOptions().rtmServer = "wss://cn-n1-core-k8s-cell-12.leancloud.cn";
+        defer {
+            AVOSCloudIM.defaultOptions().rtmServer = nil;
+        }
         
         guard let client: AVIMClient = LCIMTestBase.newOpenedClient(clientId: String(#function[..<#function.firstIndex(of: "(")!])) else {
             XCTFail()
