@@ -71,7 +71,7 @@ Pod::Spec.new do |s|
   s.resources =
     'AVOS/AVOSCloud/AVOSCloud_Art.inc'
 
-  s.dependency 'PromiseKit', "~> 6.13.1"
+  s.dependency 'PromiseKit', "~> 6.13.2"
   
   s.library =
     'sqlite3'
