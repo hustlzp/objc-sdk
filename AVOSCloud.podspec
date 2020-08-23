@@ -21,7 +21,7 @@ Pod::Spec.new do |s|
   }
 
   s.source_files =
-    'AVOS/AVOSCloud/**/*.{h,m,swift}'
+    'AVOS/AVOSCloud/**/*.{h,m}'
 
   s.public_header_files =
     'AVOS/AVOSCloud/Captcha/AVCaptcha.h',
