@@ -12,7 +12,7 @@
     #import <WatchKit/WatchKit.h>
 #endif
 
-#if TARGET_OS_IOS && !TARGET_OS_SIMULATOR
+#if TARGET_OS_IOS && !TARGET_OS_SIMULATOR && !TARGET_OS_MACCATALYST
     #import <CoreTelephony/CTTelephonyNetworkInfo.h>
     #import <CoreTelephony/CTCarrier.h>
 #endif
@@ -170,7 +170,7 @@ static NSString * identifierForVendorTag = @"identifierForVendor";
 +(NSString *)carrier {
     NSString *carrier = nil;
 
-#if TARGET_OS_IOS && !TARGET_OS_SIMULATOR
+#if TARGET_OS_IOS && !TARGET_OS_SIMULATOR && !TARGET_OS_MACCATALYST
     CTTelephonyNetworkInfo *phoneInfo = [[CTTelephonyNetworkInfo alloc] init];
     CTCarrier *phoneCarrier = [phoneInfo subscriberCellularProvider];
     carrier = [phoneCarrier carrierName];
