@@ -74,6 +74,16 @@ NS_ASSUME_NONNULL_BEGIN
  */
 + (void)setProductionMode:(BOOL)isProduction;
 
+/**
+ Public Parameters
+ */
+@property (class) NSDictionary *publicParameters;
+
+/**
+ Process to include public parameters
+ */
++ (NSDictionary *)processParameters:(NSDictionary *)parameters;
+
 @end
 
 NS_ASSUME_NONNULL_END

@@ -73,11 +73,7 @@
 }
 
 + (void)clearRpcFunctionCache:(nonnull NSString *)function withParameters:(nullable id)parameters {
-    NSDictionary *serializedParameters = nil;
-    
-    if (parameters) {
-        serializedParameters = [AVObjectUtils dictionaryFromObject:parameters topObject:YES];
-    }
+    NSDictionary *serializedParameters = [AVCloud processParameters:parameters];
     
     NSString *path = [NSString stringWithFormat:@"call/%@", function];
     NSURLRequest *request = [[AVPaasClient sharedInstance] requestWithPath:path method:@"POST" headers:nil parameters:serializedParameters];
@@ -90,15 +86,11 @@
 
 + (void)rpcFunctionFromNetwork:(NSString *)function withParameters:(nullable id)parameters cachePolicy:(AVCachePolicy)cachePolicy block:(AVIdResultWithCacheFlagBlock)block
 {
-    NSDictionary *serializedParameters = nil;
-    
-    if (parameters) {
-        serializedParameters = [AVObjectUtils dictionaryFromObject:parameters topObject:YES];
-    }
+    NSDictionary *serializedParameters = [AVCloud processParameters:parameters];
     
     NSString *path = [NSString stringWithFormat:@"call/%@", function];
     NSURLRequest *request = [[AVPaasClient sharedInstance] requestWithPath:path method:@"POST" headers:nil parameters:serializedParameters];
-    NSString *key = [AVCloud generateCacheKeyWithRequest:request parameters:parameters];
+    NSString *key = [AVCloud generateCacheKeyWithRequest:request parameters:serializedParameters];
     
     [[AVPaasClient sharedInstance]
      performRequest:request
@@ -116,11 +108,7 @@
 
 + (void)rpcFunctionFromCache:(NSString *)function withParameters:(nullable id)parameters maxCacheAge:(NSTimeInterval)maxCacheAge block:(AVIdResultWithCacheFlagBlock)block
 {
-    NSDictionary *serializedParameters = nil;
-    
-    if (parameters) {
-        serializedParameters = [AVObjectUtils dictionaryFromObject:parameters topObject:YES];
-    }
+    NSDictionary *serializedParameters = [self processParameters:parameters];
     
     NSString *path = [NSString stringWithFormat:@"call/%@", function];
     NSURLRequest *request = [[AVPaasClient sharedInstance] requestWithPath:path method:@"POST" headers:nil parameters:serializedParameters];

@@ -38,11 +38,7 @@
 
 + (id)callFunction:(NSString *)function withParameters:(NSDictionary *)parameters error:(NSError **)outError
 {
-    NSDictionary *serializedParameters = nil;
-
-    if (parameters) {
-        serializedParameters = [AVObjectUtils dictionaryFromDictionary:parameters];
-    }
+    NSDictionary *serializedParameters = [self processParameters:parameters];
 
     NSString *path = [NSString stringWithFormat:@"functions/%@", function];
     NSURLRequest *request = [[AVPaasClient sharedInstance] requestWithPath:path method:@"POST" headers:nil parameters:serializedParameters];
@@ -111,11 +107,7 @@
 }
 
 + (void)rpcFunctionInBackground:(NSString *)function withParameters:(id)parameters block:(AVIdResultBlock)block {
-    NSDictionary *serializedParameters = nil;
-
-    if (parameters) {
-        serializedParameters = [AVObjectUtils dictionaryFromObject:parameters topObject:YES];
-    }
+    NSDictionary *serializedParameters = [self processParameters:parameters];
 
     NSString *path = [NSString stringWithFormat:@"call/%@", function];
     NSURLRequest *request = [[AVPaasClient sharedInstance] requestWithPath:path method:@"POST" headers:nil parameters:serializedParameters];
@@ -226,6 +218,27 @@
         return [AVObjectUtils objectFromDictionary:dic];
     }
     return dic;
+}
+
++ (NSDictionary *)processParameters:(NSDictionary *)parameters {
+    NSMutableDictionary *serializedParameters = [NSMutableDictionary dictionaryWithDictionary:[AVCloud publicParameters]];
+    if (parameters) {
+        [serializedParameters addEntriesFromDictionary:parameters];
+    }
+    return [AVObjectUtils dictionaryFromObject:serializedParameters topObject:YES];
+}
+
+static NSDictionary *publicParameters;
+
++ (NSDictionary *)publicParameters {
+    if (publicParameters == nil) {
+        return @{};
+    }
+    return publicParameters;
+}
+
++ (void)setPublicParameters:(NSDictionary *)value {
+    publicParameters = value;
 }
 
 @end
