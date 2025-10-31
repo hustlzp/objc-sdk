@@ -485,7 +485,9 @@ if (block) { \
     CFStringRef UTI = UTTypeCreatePreferredIdentifierForTag(kUTTagClassFilenameExtension, (__bridge CFStringRef)[filePathOrName pathExtension], NULL);
     CFStringRef MIMEType = UTTypeCopyPreferredTagWithClass (UTI, kUTTagClassMIMEType);
     
-    CFRelease(UTI);
+    if (UTI != NULL) {
+        CFRelease(UTI);
+    }
     return MIMEType ? (__bridge_transfer NSString *)MIMEType : @"application/octet-stream";
 }
 
